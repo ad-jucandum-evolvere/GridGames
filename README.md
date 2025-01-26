@@ -1,3 +1,13 @@
+# Important
+
+Check whether autocrfl is enabled for this repo. Otherwise, if disabled or unknown please use the below command to enable for this repo
+
+```text
+git config core.autocrfl true
+```
+
+This setting ensures the EOL character matches the OS. Going forward if this setting is not enough .gitattributes file might be useful
+
 ## List down ideas here
 
 1. Minesweeper
