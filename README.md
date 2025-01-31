@@ -20,3 +20,4 @@ This setting ensures the EOL character matches the OS. Going forward if this set
 8. Compilation of Tic-tac-toe + variants
 9. Tetris
 10. Nonograms
+11. Block Breaker
