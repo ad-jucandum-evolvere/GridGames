@@ -25,7 +25,7 @@ The list of completed and planned games
 
 ## Contributing
 
-== Important ==
+### :exclamation:Important
 
 Please follow the source code styling to ensure that any contibutions may not causing diff noise. Also ensure that autocrfl is enabled before committing any changes. This setting ensures the EOL character matches the OS. If value disabled or unknown please use the below command to enable it.
 
