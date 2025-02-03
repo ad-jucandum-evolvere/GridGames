@@ -4,15 +4,13 @@ GridGames is a compilation of grid based games built using the [LÖVE](https://l
 
 ## Getting Started
 
------------------------------
-
 To run any games from this repo you don't need to have lua installed separately. Having LÖVE game engine installed is enough. You can download LÖVE from [here](https://love2d.org/#download).
 
 Once you have installed LÖVE for your operation system, you can add LÖVE's installed path to your PATH variable. Then, you can run any game using the command: `love <game_directory>`
 
 ## Games
 
------------------------------
+The list of completed and planned games
 
 ### Completed
 
@@ -26,8 +24,6 @@ Once you have installed LÖVE for your operation system, you can add LÖVE's ins
 - [ ] Crossword
 
 ## Contributing
-
------------------------------
 
 == Important ==
 
