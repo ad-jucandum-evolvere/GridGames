@@ -31,8 +31,8 @@
             "type": "command",
             "command": "extension.commandvariable.transform",
             "args": {
-                "text": "${fileDirname}",
-                "find": "(.*\\${pathSeparator}.*?)\\${pathSeparator}.*",
+                "text": "${relativeFileDirname}",
+                "find": "(.*?)\\${pathSeparator}.*",
                 "replace": "$1"
             }
         }
