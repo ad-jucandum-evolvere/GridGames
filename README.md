@@ -1,40 +1,38 @@
-# Important
+# GridGames
 
-Check whether autocrfl is enabled for this repo. Otherwise, if disabled or unknown please use the below command to enable for this repo
+GridGames is a compilation of grid based games built using the [LÖVE](https://love2d.org) framework. This is currently an hobby project for learning about game dev and having fun building games
 
-```text
+## Getting Started
+
+To run any games from this repo you don't need to have lua installed separately. Having LÖVE game engine installed is enough. You can download LÖVE from [here](https://love2d.org/#download).
+
+Once you have installed LÖVE for your operation system, you can add LÖVE's installed path to your PATH variable. Then, you can run any game using the command: `love <game_directory>`
+
+## Games
+
+The list of completed and planned games
+
+### Completed
+
+### Planned
+
+- [x] Minesweeper
+- [ ] Tic-tac-toe + variants
+- [ ] Nonograms
+- [ ] Voltorb Flip (HG/SS)
+- [ ] Sudoku
+- [ ] Crossword
+
+## Contributing
+
+### :exclamation:Important
+
+Please follow the source code styling to ensure that any contibutions may not causing diff noise. Also ensure that autocrfl is enabled before committing any changes. This setting ensures the EOL character matches the OS. If value disabled or unknown please use the below command to enable it.
+
+```shell
 git config core.autocrfl true
 ```
 
-This setting ensures the EOL character matches the OS. Going forward if this setting is not enough .gitattributes file might be useful
+### Setting up the dev environment
 
-## Game Engine Recommendations
-1. Simple 2D - https://love2d.org (https://github.com/love2d/love)
-2. 2D & 3D - https://godotengine.org (https://github.com/godotengine/godot)
-
-## List down ideas here
-Grid Based
-1. Minesweeper
-2. Tic-tac-toe (variants)
-3. Nonograms
-4. Voltorb Flip (HG/SS)
-5. Sudoku
-6. Crossword
-
-Trivia Games
-1. Hangman
-2. Wordle (co-op, timed, comp)
-3. KBC (latest news, new lifelines)
-4. Quiz (any genre)
-
-Arcade
-1. Space Impact
-2. Bounce
-3. Snake
-4. Block Breaker
-5. Tetris
-
-Separate Stack
-1. Chess
-2. Text based RPG (Pokemon)
-3. Idle/Incremental Games
+Please install the recommended VS code extensions. The basic configurations for the extensions have already been added to the workspace.
