@@ -1,6 +1,8 @@
 {
     "recommendations": [
+        "EditorConfig.EditorConfig",
+        "rioj7.command-variable",
         "sumneko.lua",
-        "bschulte.love"    
+        "tomblind.local-lua-debugger-vscode",
     ]
 }
