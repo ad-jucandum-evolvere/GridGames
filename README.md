@@ -31,7 +31,8 @@ The list of completed and planned games
 
 ### Planned
 
-- [x] Minesweeper
+- [x] Game of Life (Cellular Automata)
+- [ ] Minesweeper
 - [ ] Tic-tac-toe + variants
 - [ ] Nonograms
 - [ ] Voltorb Flip (HG/SS)
@@ -40,7 +41,7 @@ The list of completed and planned games
 
 ## Contributing
 
-> **Warning**: The warning `in the working copy of '[file]', LF will be replaced by CRLF the next time Git touches it` will be seen by Windows OS users due enforcement of '**lf**' line endings. This warning can be ignored. In case, suppression of warning is required set safecrlf git config to false using the command `git config set core.safecrlf false`
+> **Important**: Please follow the git config autocrlf setting mentioned for your operating system from [here](https://docs.github.com/en/get-started/getting-started-with-git/configuring-git-to-handle-line-endings?platform=windows#global-settings-for-line-endings) to enforce the same line ending for all commits
 
 ### Setting up the dev environment
 

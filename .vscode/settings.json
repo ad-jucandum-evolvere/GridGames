@@ -9,5 +9,8 @@
     "Lua.workspace.checkThirdParty": false,
     "Lua.diagnostics.neededFileStatus": {
         "codestyle-check": "Any"
-    }
+    },
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
+    ]
 }
