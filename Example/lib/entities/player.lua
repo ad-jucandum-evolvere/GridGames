@@ -15,6 +15,7 @@ function Player:new(x, y, width, height)
     self.semiWidth = self.width / 2
     self.semiHeight = self.height / 2
     self.colorRadians = 0
+    return self
 end
 
 function Player:update(dt)

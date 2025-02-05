@@ -7,7 +7,7 @@ function love.load()
     require("lib.entities.player")
 
     love.window.setTitle("Example")
-    player = Player(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 20, 20)
+    player = Player:new(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 20, 20)
 end
 
 function love.update(dt)
