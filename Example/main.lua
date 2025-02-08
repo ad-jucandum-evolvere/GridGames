@@ -1,4 +1,4 @@
-if arg[2] == "debug" then
+if arg[#arg] == "debug" then
     require("lldebugger").start()
 end
 

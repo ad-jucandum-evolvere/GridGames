@@ -12,5 +12,8 @@
     },
     "Lua.diagnostics.disable": [
         "lowercase-global"
+    ],
+    "gitlens.codeLens.scopes": [
+        "document"
     ]
 }
