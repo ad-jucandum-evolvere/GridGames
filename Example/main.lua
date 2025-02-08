@@ -4,20 +4,33 @@ end
 
 function love.load()
     Object = require("lib.vendor.classic")
+    require("lib.common.container")
     require("lib.entities.player")
 
     love.window.setTitle("Example")
-    player = Player:new(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 20, 20)
+
+    containers = {}
+    count = 5;
+
+    for i = 1, count do
+        containers[i] = Container:new(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 20, 20, i * 25)
+    end
 end
 
 function love.update(dt)
-    player:update(dt)
+    for i = 1, #containers do
+        containers[i]:update(dt)
+    end
 end
 
 function love.draw()
-    player:draw()
+    for i = 1, #containers do
+        containers[i]:draw()
+    end
 end
 
 function love.keypressed(key)
-    player:handleKeyPress(key)
+    for i = 1, #containers do
+        containers[i]:keypressed(key)
+    end
 end
