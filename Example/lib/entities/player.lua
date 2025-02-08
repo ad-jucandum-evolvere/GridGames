@@ -5,17 +5,23 @@ Player = Object:extend()
 ---@param y number
 ---@param width number
 ---@param height number
-function Player:new(x, y, width, height)
-    self.x = x or 0
-    self.y = y or 0
-    self.width = width or 10
-    self.height = height or 10
-    self.direction = 1
-    self.speed = 50
-    self.semiWidth = self.width / 2
-    self.semiHeight = self.height / 2
-    self.colorRadians = 0
-    return self
+function Player:new(x, y, width, height, offset)
+    local player = {}
+
+    setmetatable(player, self);
+
+    player.x = x or 0
+    player.y = y or 0
+    player.width = width or 10
+    player.height = height or 10
+    player.direction = offset / 25
+    player.speed = 20 * (offset / 25)
+    player.semiWidth = player.width / 2
+    player.semiHeight = player.height / 2
+    player.colorRadians = 0
+    player.offset = offset
+
+    return player
 end
 
 function Player:update(dt)
@@ -46,8 +52,8 @@ function Player:update(dt)
 end
 
 function Player:draw()
-    local left = self.x - self.semiWidth
-    local top = self.y - self.semiHeight
+    local left = self.x - self.semiWidth + self.offset
+    local top = self.y - self.semiHeight + self.offset
 
     local red = 1 + math.sin(self.colorRadians + math.pi / 2)
     local green = 1 + math.sin(self.colorRadians + math.pi)
