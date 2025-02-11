@@ -1,4 +1,4 @@
-Item = Object:extend()
+Cell = Object:extend()
 timerCount = 0.2 -- milliseconds
 
 ---constructor
@@ -6,21 +6,21 @@ timerCount = 0.2 -- milliseconds
 ---@param y number
 ---@param size number
 ---@param value number
-function Item:new(x, y, size, value)
-    local item = {}
+function Cell:new(x, y, size, value)
+    local cell = {}
 
-    setmetatable(item, self);
+    setmetatable(cell, self);
 
-    item.x = x or 0
-    item.y = y or 0
-    item.size = size or 0
-    item.value = value or 0
-    item.timer = 0
+    cell.x = x or 0
+    cell.y = y or 0
+    cell.size = size or 0
+    cell.value = value or 0
+    cell.timer = 0
 
-    return item
+    return cell
 end
 
-function Item:update(dt)
+function Cell:update(dt)
     -- if self.value > 0 then
     --     self.timer = self.timer + dt
     --     if self.timer >= timerCount then
@@ -30,7 +30,7 @@ function Item:update(dt)
     -- end
 end
 
-function Item:draw()
+function Cell:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
 

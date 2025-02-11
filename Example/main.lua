@@ -6,17 +6,17 @@ function love.load()
     Object = require("lib.vendor.classic")
     require("lib.common.container")
     require("lib.common.grid")
-    require("lib.common.item")
+    require("lib.common.cell")
     require("lib.entities.player")
 
     love.window.setTitle("Minesweeper")
 
-    local item_size = 30
-    local resolution = love.graphics.getHeight() / item_size
-    -- local left = love.graphics.getWidth() / 2 - (resolution * item_size / 2)
-    -- local top = love.graphics.getHeight() / 2 - (resolution * item_size / 2)
+    local cell_size = 30
+    local grid_resolution = love.graphics.getHeight() / cell_size
+    -- local left = love.graphics.getWidth() / 2 - (grid_resolution * cell_size / 2)
+    -- local top = love.graphics.getHeight() / 2 - (grid_resolution * cell_size / 2)
 
-    grid = Grid:new(0, 0, resolution, item_size)
+    grid = Grid:new(0, 0, grid_resolution, cell_size)
 end
 
 function love.draw()
