@@ -5,7 +5,8 @@ Container = Object:extend()
 ---@param y number
 ---@param width number
 ---@param height number
-function Container:new(x, y, width, height, offset)
+---@param padding number
+function Container:new(x, y, width, height, padding)
     local container = {}
 
     setmetatable(container, self);
@@ -14,19 +15,19 @@ function Container:new(x, y, width, height, offset)
     container.y = y or 0
     container.width = width or 10
     container.height = height or 10
-    container.player = Player:new(container.x, container.y, 20, 20, offset)
+    container.padding = padding or 0
 
-    return container;
+    return container
 end
 
 function Container:update(dt)
-    self.player:update(dt)
+    -- self.update(dt)
 end
 
 function Container:draw()
-    self.player:draw()
+    love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end
 
-function Container:keypressed(key)
-    self.player:handleKeyPress(key)
-end
+-- function Container:keypressed(key)
+--     self.player:handleKeyPress(key)
+-- end

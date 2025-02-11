@@ -5,32 +5,34 @@ end
 function love.load()
     Object = require("lib.vendor.classic")
     require("lib.common.container")
+    require("lib.common.grid")
+    require("lib.common.item")
     require("lib.entities.player")
 
-    love.window.setTitle("Example")
+    love.window.setTitle("Minesweeper")
 
-    containers = {}
-    count = 5;
+    local item_size = 30
+    local resolution = love.graphics.getHeight() / item_size
+    -- local left = love.graphics.getWidth() / 2 - (resolution * item_size / 2)
+    -- local top = love.graphics.getHeight() / 2 - (resolution * item_size / 2)
 
-    for i = 1, count do
-        containers[i] = Container:new(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 20, 20, i * 25)
-    end
-end
-
-function love.update(dt)
-    for i = 1, #containers do
-        containers[i]:update(dt)
-    end
+    grid = Grid:new(0, 0, resolution, item_size)
 end
 
 function love.draw()
-    for i = 1, #containers do
-        containers[i]:draw()
+    grid:draw()
+end
+
+function love.update(dt)
+    grid:update(dt)
+end
+
+function love.mousepressed(x, y, button)
+    -- if left mouse button is pressed
+    if button == 1 then
+        -- start toggling the item value
+        grid:toggleCell(x, y)
     end
 end
 
-function love.keypressed(key)
-    for i = 1, #containers do
-        containers[i]:keypressed(key)
-    end
-end
+
