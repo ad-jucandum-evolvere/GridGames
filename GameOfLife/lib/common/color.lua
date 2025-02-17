@@ -11,4 +11,13 @@ function Color.new(rgba)
     return color
 end
 
+---@enum color
+Color.color = {
+    black = Color.new({ 0, 0, 0 }),
+    white = Color.new({ 255, 255, 255 }),
+    red = Color.new({ 255, 0, 0 }),
+    green = Color.new({ 0, 255, 0 }),
+    blue = Color.new({ 0, 0, 255 })
+}
+
 return Color

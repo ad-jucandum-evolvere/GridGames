@@ -1,60 +1,64 @@
 Cell = require("lib.core.cell")
 
----@class Board
----@field origin Point
----@field pad Padding
+---@class Board: Pod
 ---@field cells Cell[]
-local Board = {}
+---@field cellsDimension Vector2
+---@field gameRunning boolean
+local Board = Pod.new()
 local Board_mt = { __index = Board }
 
---@private
----get the limiting side of the display window
----@return number
-local function getLimitingFactor()
-    local windowWidth, windowHeight, flags = love.window.getMode()
-    if windowHeight < windowWidth then
-        return windowHeight
-    else
-        return windowWidth
-    end
-end
-
----@private
----compute cell size when window resizes
----@param cellCount number
----@return number
-local function getCellSize(cellCount)
-    local limitingFactor = getLimitingFactor()
-    local cellDimension = math.floor(math.sqrt(cellCount))
-    return (limitingFactor - 2 * 10) / cellDimension
+---get neighboring cells
+---@param this Board
+---@param i number
+---@param j number
+---@return Cell[]
+local function getNeighbors(this, i, j)
+    local neighbors = {}
+    local cellsPerRow = this.cellsDimension.x
+    neighbors[1] = this.cells[(i - 1) * cellsPerRow + j]
+    neighbors[2] = this.cells[i * cellsPerRow + j]
+    neighbors[3] = this.cells[(i + 1) * cellsPerRow + j]
+    neighbors[4] = this.cells[(i - 1) * cellsPerRow + j + 1]
+    neighbors[5] = this.cells[(i + 1) * cellsPerRow + j + 1]
+    neighbors[6] = this.cells[(i - 1) * cellsPerRow + j + 2]
+    neighbors[7] = this.cells[i * cellsPerRow + j + 2]
+    neighbors[8] = this.cells[(i + 1) * cellsPerRow + j + 2]
+    return neighbors
 end
 
 ---constructor
----@param origin Point
+---@param origin Vector2
+---@param dimension Vector2
 ---@param pad Padding
 ---@param cellSize number
----@param cellCount number
 ---@return Board
-function Board.new(origin, pad, cellSize, cellCount)
-    origin = origin or Point.new()
+function Board.new(origin, dimension, pad, cellSize)
+    origin = origin or Vector2.new()
+    dimension = dimension or Vector2.new()
     pad = pad or Padding.new()
     cellSize = cellSize or 10
-    cellCount = cellCount or 100
 
     local cells = {}
-    local cellsPerRow = math.floor(math.sqrt(cellCount))
-    for n = 0, cellCount - 1 do
-        local i = n % cellsPerRow
-        local j = math.floor(n / cellsPerRow)
-        local cellOx = origin.x + pad.left + i * cellSize
-        local cellOy = origin.y + pad.top + j * cellSize
-        cells[n + 1] = Cell.new(Point.new(cellOx, cellOy), Padding.new(1), cellSize)
+    local cellsPerRow = math.ceil((dimension.x - (pad.left + pad.right)) / cellSize)
+    local cellsPerColumn = math.ceil((dimension.y - (pad.top + pad.bottom)) / cellSize)
+    for i = 0, cellsPerRow - 1 do
+        for j = 0, cellsPerColumn - 1 do
+            local cellOx = pad.left + i * cellSize
+            local cellOy = pad.top + j * cellSize
+            cells[i * cellsPerRow + j + 1] = Cell.new(Vector2.new(cellOx, cellOy), Vector2.new(cellSize, cellSize),
+                Padding.new(1))
+        end
     end
+    local newDimension = Vector2.new(pad.left + pad.right + cellsPerRow * cellSize,
+        pad.top + pad.bottom + cellsPerColumn * cellSize)
 
     return setmetatable({
         origin = origin,
+        dimension = newDimension,
         pad = pad,
-        cells = cells
+        cells = cells,
+        cellsDimension = Vector2.new(cellsPerRow, cellsPerColumn),
+        gameRunning = false
     }, Board_mt)
 end
 
@@ -63,46 +67,65 @@ function Board:draw()
         print("no cells to draw")
         return
     end
-    local cellsPerRow = math.floor(math.sqrt(#self.cells))
-    local boardSize = self.cells[1].size * cellsPerRow
-    love.graphics.push()
-    love.graphics.translate(self.origin.x, self.origin.y)
-    love.graphics.rectangle("fill", self.pad.left, self.pad.top, boardSize, boardSize)
-    love.graphics.pop()
 
-    for n = 1, #self.cells do
-        self.cells[n]:draw()
+    love.graphics.push()
+    self:translateToOrigin()
+    self:drawMarginRounded(5)
+    love.graphics.setColor(Color.color.black)
+    self:fillContent()
+    love.graphics.setColor(Color.color.white)
+
+    for i = 0, self.cellsDimension.x - 1 do
+        for j = 0, self.cellsDimension.y - 1 do
+            self.cells[i * self.cellsDimension.x + j + 1]:draw()
+        end
+    end
+    love.graphics.pop()
+end
+
+function Board:resize(factor)
+    self.origin = self.origin * factor
+    self.dimension = self.dimension * factor
+    for i = 0, self.cellsDimension.x - 1 do
+        for j = 0, self.cellsDimension.y - 1 do
+            self.cells[i * self.cellsDimension.x + j + 1]:resize(factor)
+        end
     end
 end
 
-function Board:resize()
-    local cellCount = #self.cells
-    local cellSize = getCellSize(cellCount)
-    local cellsPerRow = math.floor(math.sqrt(cellCount))
-    for n = 0, cellCount - 1 do
-        local i = n % cellsPerRow
-        local j = math.floor(n / cellsPerRow)
-        local cellOx = self.origin.x + self.pad.left + i * cellSize
-        local cellOy = self.origin.y + self.pad.top + j * cellSize
-        self.cells[n + 1].origin.x = cellOx
-        self.cells[n + 1].origin.y = cellOy
-        self.cells[n + 1].size = cellSize
+function Board:toggleGameState()
+    self.gameRunning = not self.gameRunning
+end
+
+function Board:updateState()
+    if not self.gameRunning then
+        return
+    end
+    local cellsPerRow, cellsPerColumn = self.cellsDimension.x, self.cellsDimension.y
+    for i = 0, cellsPerRow - 1 do
+        for j = 0, cellsPerColumn - 1 do
+            self.cells[i * cellsPerRow + j + 1]:computeNextState(getNeighbors(self, i, j))
+        end
+    end
+    for i = 0, cellsPerRow - 1 do
+        for j = 0, cellsPerColumn - 1 do
+            self.cells[i * cellsPerRow + j + 1]:updateState()
+        end
     end
 end
 
 function Board:mousePressed(mouseX, mouseY)
-    local cellSize = self.cells[1].size
-    local cellDimension = math.floor(math.sqrt(#self.cells))
     local x = mouseX - self.origin.x - self.pad.left
     local y = mouseY - self.origin.y - self.pad.top
-    if x > cellSize * cellDimension or y > cellSize * cellDimension then
+    if x > self.dimension.x or y > self.dimension.y then
         --mouse is out of bounds
         return
     end
+    local cellSize = self.cells[1]:getDimensions()
     local i = math.floor(x / cellSize)
     local j = math.floor(y / cellSize)
-    local cellIndex = j * cellDimension + i + 1
-    self.cells[cellIndex]:clicked()
+    local cellIndex = i * self.cellsDimension.x + j + 1
+    self.cells[cellIndex]:clicked(x, y)
 end
 
 return Board

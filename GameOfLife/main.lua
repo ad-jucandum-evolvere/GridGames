@@ -2,32 +2,21 @@ if arg[#arg] == "debug" then
     require("lldebugger").start()
 end
 
+Vector2 = require("lib.common.vector2")
 Padding = require("lib.common.padding")
-Point = require("lib.common.point")
-Timer = require("lib.common.timer")
+Color = require("lib.common.color")
+Pod = require("lib.common.pod")
 Board = require("lib.core.board")
+Timer = require("lib.common.timer")
 
---@private
----get the limiting side of the display window
----@return number
-local function getLimitingFactor()
-    local windowWidth, windowHeight, flags = love.window.getMode()
-    if windowHeight < windowWidth then
-        return windowHeight
-    else
-        return windowWidth
-    end
-end
+local width, height = love.window.getMode()
 
 function love.load()
     love.window.setTitle("Game of Life")
     delayTimer = Timer.new(3, Timer.TimerType.AFTER, print, "Delay")
-    everyTimer1 = Timer.new(13, Timer.TimerType.EVERY, print, "13")
-    everyTimer = Timer.new(10, Timer.TimerType.EVERY, Timer.reset, delayTimer)
-    local limitingFactor = getLimitingFactor()
-    local cellDimension = 50
-    local cellSize = (limitingFactor - 2 * 10) / cellDimension
-    mainBoard = Board.new(Point.new(), Padding.new(10), cellSize, math.pow(cellDimension, 2))
+    local cellSize = 10
+    mainBoard = Board.new(Vector2.new(), Vector2.new(width - 20, height - 20), Padding.new(10), cellSize)
+    everyTimer = Timer.new(0.5, Timer.TimerType.EVERY, mainBoard.updateState, mainBoard)
 end
 
 function love.draw()
@@ -35,7 +24,17 @@ function love.draw()
 end
 
 function love.resize()
-    mainBoard:resize()
+    local newWidth, newHeight = love.window.getMode()
+    local factor, pow = nil, 1
+    if newHeight >= height then
+        factor = newHeight / height
+    else
+        factor = height / newHeight
+        pow = -1
+    end
+    mainBoard:resize(math.pow(factor, pow))
+    width = newWidth
+    height = newHeight
 end
 
 function love.mousepressed(x, y, button, isTouch)
@@ -44,8 +43,13 @@ function love.mousepressed(x, y, button, isTouch)
     end
 end
 
+function love.keypressed(key)
+    if key == "space" then
+        mainBoard:toggleGameState()
+    end
+end
+
 function love.update(dt)
     delayTimer:update(dt)
     everyTimer:update(dt)
-    everyTimer1:update(dt)
 end

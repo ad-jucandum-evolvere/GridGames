@@ -13,6 +13,22 @@ local function toString(self)
     return "[" .. self.left .. ", " .. self.top .. ", " .. self.right .. ", " .. self.bottom .. "]"
 end
 
+---scale padding by factor
+---@operator mul(number): Vector2
+---@param this Padding
+---@param factor number
+---@return Padding
+local function mul(this, factor)
+    local res = Padding.new()
+    for k, v in pairs(this) do
+        if type(k) ~= "function" then
+            res[k] = v * factor
+        end
+    end
+    return res
+end
+
+Padding_mt.__mul = mul
 Padding_mt.__tostring = toString
 
 ---constructor
