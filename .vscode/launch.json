@@ -13,7 +13,8 @@
                 "debug"
             ],
             "scriptRoots": [
-                "${input:gameDir}"
+                "${input:gameDir}",
+                "${workspaceFolder}/fwk"
             ],
         },
         {

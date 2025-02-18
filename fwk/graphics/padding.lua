@@ -1,25 +1,25 @@
----@class Padding
+---@class padding
 ---@field left number
 ---@field top number
 ---@field right number
 ---@field bottom number
-local Padding = {}
-local Padding_mt = { __index = Padding }
+local padding = {}
+local padding_mt = { __index = padding }
 
 ---convert to string
----@param self Padding
+---@param self padding
 ---@return string
 local function toString(self)
     return "[" .. self.left .. ", " .. self.top .. ", " .. self.right .. ", " .. self.bottom .. "]"
 end
 
 ---scale padding by factor
----@operator mul(number): Vector2
----@param this Padding
+---@operator mul(number): vector2
+---@param this padding
 ---@param factor number
----@return Padding
+---@return padding
 local function mul(this, factor)
-    local res = Padding.new()
+    local res = padding.new()
     for k, v in pairs(this) do
         if type(k) ~= "function" then
             res[k] = v * factor
@@ -28,13 +28,13 @@ local function mul(this, factor)
     return res
 end
 
-Padding_mt.__mul = mul
-Padding_mt.__tostring = toString
+padding_mt.__mul = mul
+padding_mt.__tostring = toString
 
 ---constructor
 ---@param ... any
----@return Padding
-function Padding.new(...)
+---@return padding
+function padding.new(...)
     local arg = { ... }
     if #arg > 4 then
         print("padding cannot have more than 4 arguments")
@@ -48,15 +48,15 @@ function Padding.new(...)
         top = top,
         right = right,
         bottom = bottom
-    }, Padding_mt)
+    }, padding_mt)
 end
 
 ---pre-fabricator
----@param padding Padding
----@return Padding
-function Padding.copy(padding)
-    local copy = Padding.new(padding.left, padding.top, padding.right, padding.bottom)
+---@param padding padding
+---@return padding
+function padding.copy(padding)
+    local copy = padding.new(padding.left, padding.top, padding.right, padding.bottom)
     return setmetatable(copy, getmetatable(padding))
 end
 
-return Padding
+return padding

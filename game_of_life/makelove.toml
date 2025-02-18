@@ -1,4 +1,6 @@
 name = "GameOfLife"
+love_version = "11.5"
+
 default_targets = ["win32", "win64", "macos", "lovejs"]
 build_directory = "bin"
 love_files = ["+*", "-*/.*"]

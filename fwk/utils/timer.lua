@@ -1,11 +1,11 @@
----@class Timer
+---@class timer
 ---@field elapsed number
 ---@field time number
 ---@field callback function
 ---@field args any
 ---@field update function
-local Timer = {}
-local Timer_mt = { __index = Timer }
+local timer = {}
+local timer_mt = { __index = timer }
 
 ---check whether the parameter callable is a function
 ---@param callback function
@@ -30,7 +30,7 @@ local function checkPositiveInteger(name, value)
 end
 
 ---function that executes callback after 'time' seconds
----@param self Timer
+---@param self timer
 ---@param dt number
 ---@return boolean
 local function updateAfterClock(self, dt)
@@ -47,7 +47,7 @@ local function updateAfterClock(self, dt)
 end
 
 ---function that executes call every 'time' seconds
----@param self Timer
+---@param self timer
 ---@param dt number
 ---@return boolean
 local function updateEveryClock(self, dt)
@@ -62,7 +62,7 @@ local function updateEveryClock(self, dt)
 end
 
 ---@enum TimerType
-Timer.TimerType = {
+timer.TimerType = {
     AFTER = updateAfterClock,
     EVERY = updateEveryClock
 }
@@ -72,8 +72,8 @@ Timer.TimerType = {
 ---@param timerType TimerType
 ---@param callback function
 ---@param ... any
----@return Timer
-function Timer.new(time, timerType, callback, ...)
+---@return timer
+function timer.new(time, timerType, callback, ...)
     assert(isCallable(callback), "callback is not a function")
     return setmetatable({
         elapsed = 0,
@@ -81,15 +81,15 @@ function Timer.new(time, timerType, callback, ...)
         update = timerType,
         callback = callback,
         args = { ... }
-    }, Timer_mt)
+    }, timer_mt)
 end
 
 ---reset timer to 0 or given value
 ---@param value number
-function Timer:reset(value)
+function timer:reset(value)
     value = value or 0
     checkPositiveInteger("value", value)
     self.elapsed = value
 end
 
-return Timer
+return timer
