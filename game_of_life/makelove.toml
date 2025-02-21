@@ -1,6 +1,15 @@
 name = "GameOfLife"
 love_version = "11.5"
+keep_game_directory = false
 
 default_targets = ["win32", "win64", "macos", "lovejs"]
 build_directory = "bin"
-love_files = ["+*", "-*/.*"]
+love_files = ["+*", "-*/.*", "-*/bin/*"]
+
+[archive_files]
+"../README.md" = "readme.md"
+"../LICENSE" = "license"
+
+[hooks]
+prebuild = ["python ../hooks/prebuild.py"]
+postbuild = ["python ../hooks/cleanup.py"]
