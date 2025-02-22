@@ -112,9 +112,9 @@ end
 ---binary search cell array
 ---@param axis string
 ---@param array cell[]
----@param low number
----@param high number
----@param value number
+---@param low integer
+---@param high integer
+---@param value integer
 local function binarySearch(axis, array, low, high, value)
     while low <= high do
         local mid = low + math.floor((high - low) / 2)
@@ -131,6 +131,12 @@ local function binarySearch(axis, array, low, high, value)
     return 0
 end
 
+---search the cell index for given mouse click vector
+---@param cells cell[][]
+---@param x number
+---@param y number
+---@return integer
+---@return integer
 local function binaryCellIndexSearch(cells, x, y)
     local tempArray = {}
     for i = 1, #cells do

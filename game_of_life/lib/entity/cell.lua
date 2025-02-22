@@ -76,35 +76,47 @@ function cell:updateState()
     self.nextState = nil
 end
 
-local function withinXBound(self, x)
+---check value is within x bound
+---@param self cell
+---@param value number
+---@return integer
+local function withinHorizontalBounds(self, value)
     local lower = self.origin.x
     local upper = lower + self.dimension.x
-    if x > lower and x < upper then
+    if value > lower and value < upper then
         return 0
-    elseif x < lower then
+    elseif value < lower then
         return -1
     else
         return 1
     end
 end
 
-local function withinYBound(self, y)
+---check value is within y bound
+---@param self cell
+---@param value number
+---@return integer
+local function withinVerticalBounds(self, value)
     local lower = self.origin.y
     local upper = lower + self.dimension.y
-    if y > lower and y < upper then
+    if value > lower and value < upper then
         return 0
-    elseif y < lower then
+    elseif value < lower then
         return -1
     else
         return 1
     end
 end
 
+---check whether give value is within bounds of corresponding axis
+---@param value number
+---@param axis string
+---@return integer
 function cell:withinBounds(value, axis)
     if axis == "x" then
-        return withinXBound(self, value)
+        return withinHorizontalBounds(self, value)
     else
-        return withinYBound(self, value)
+        return withinVerticalBounds(self, value)
     end
 end
 
