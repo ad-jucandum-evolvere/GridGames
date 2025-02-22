@@ -4,7 +4,6 @@ cell = require("lib.entity.cell")
 ---@class board: container
 ---@field cells cell[][]
 ---@field cellsDimension vector2
----@field gameRunning boolean
 local board = container.new()
 local board_mt = { __index = board }
 
@@ -60,20 +59,15 @@ function board.new(origin, dimension, pad, cellSize)
         dimension = newDimension,
         pad = pad,
         cells = cells,
-        cellsDimension = vector2.new(cellsPerRow, cellsPerColumn),
-        gameRunning = false,
-        sf = 1
+        cellsDimension = vector2.new(cellsPerRow, cellsPerColumn)
     }, board_mt)
 end
 
 function board:draw()
     if #self.cells <= 0 then
-        print("no cells to draw")
         return
     end
-
     love.graphics.push()
-    love.graphics.scale(self.sf, self.sf)
     self:translateToOrigin()
     self:drawMarginRounded(5)
     love.graphics.setColor(Colors.black)
@@ -88,23 +82,18 @@ function board:draw()
     love.graphics.pop()
 end
 
-function board:windowResizeHandler(factor)
-    self.sf = factor
-    -- for i = 1, #self.cells do
-    --     for j = 1, #self.cells[i] do
-    --         self.cells[i][j]:windowResizeHandler(factor)
-    --     end
-    -- end
-end
-
-function board:toggleGameState()
-    self.gameRunning = not self.gameRunning
+function board:reset()
+    if #self.cells <= 0 then
+        return
+    end
+    for i = 1, #self.cells do
+        for j = 1, #self.cells[i] do
+            self.cells[i][j].isAlive = false
+        end
+    end
 end
 
 function board:updateState()
-    if not self.gameRunning then
-        return
-    end
     for i = 1, #self.cells do
         for j = 1, #self.cells[i] do
             self.cells[i][j]:computeNextState(getNeighbors(self.cells, i, j))
@@ -117,10 +106,10 @@ function board:updateState()
     end
 end
 
-function board:onClickHandler(mouseX, mouseY)
+function board:onClickHandler(mouseX, mouseY, scalingFactor)
     local x = mouseX - self.origin.x - self.pad.left
     local y = mouseY - self.origin.y - self.pad.top
-    local cellSize = self.cells[1][1]:getDimensions() * self.sf
+    local cellSize = self.cells[1][1]:getDimensions() * scalingFactor
     local i = math.ceil(x / cellSize)
     local j = math.ceil(y / cellSize)
     if i < 0 or i > self.cellsDimension.x or j < 0 or j > self.cellsDimension.y then

@@ -1,5 +1,5 @@
 ---@class cell: container
----@field currentState boolean
+---@field isAlive boolean
 ---@field nextState boolean
 local cell = container.new()
 local cell_mt = { __index = cell }
@@ -20,7 +20,7 @@ function cell.new(origin, size, pad)
         origin = origin,
         dimension = size,
         pad = pad,
-        currentState = false,
+        isAlive = false,
         nextState = nil
     }, cell_mt)
 end
@@ -29,7 +29,7 @@ end
 function cell:draw()
     love.graphics.push()
     self:translateToOrigin()
-    if self.currentState then
+    if self.isAlive then
         self:addGlow(cellAliveColor, 120, 2, 4)
         love.graphics.setColor(cellAliveColor)
     else
@@ -46,7 +46,7 @@ end
 
 ---mouse click handler
 function cell:onClickHandler()
-    self.currentState = not self.currentState
+    self.isAlive = not self.isAlive
 end
 
 ---compute next state of cell
@@ -55,10 +55,10 @@ function cell:computeNextState(neighbors)
     local neighborCount = 0
     for i = 1, #neighbors do
         if neighbors[i] ~= nil then
-            if neighbors[i].currentState then neighborCount = neighborCount + 1 end
+            if neighbors[i].isAlive then neighborCount = neighborCount + 1 end
         end
     end
-    if self.currentState then
+    if self.isAlive then
         if neighborCount < 2 then
             self.nextState = false
         elseif neighborCount == 2 or neighborCount == 3 then
@@ -74,7 +74,7 @@ function cell:computeNextState(neighbors)
 end
 
 function cell:updateState()
-    self.currentState = self.nextState
+    self.isAlive = self.nextState
     self.nextState = nil
 end
 
