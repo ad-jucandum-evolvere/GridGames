@@ -1,9 +1,11 @@
+--- imports
 vector2 = require("fwk.graphics.vector2")
 padding = require("fwk.graphics.padding")
 container = require("fwk.graphics.container")
 timer = require("fwk.utils.timer")
 board = require("lib.entity.board")
 
+--- Manager for game state and timers
 local gs = {}
 
 ---@type board
@@ -25,6 +27,8 @@ local instructionSprite = love.graphics.newImage("resources/sprites/instructions
 local pauseImage = love.graphics.newImage("resources/sprites/pause.png")
 local playImage = love.graphics.newImage("resources/sprites/play.png")
 
+---clean up expired timers from list
+---@param index number
 local function cleanUpTimers(index)
     for i = index, #timers do
         timers[i] = timers[i + 1]
@@ -32,18 +36,21 @@ local function cleanUpTimers(index)
     stateSprite = nil
 end
 
+---update game state notification
 local function gameStateNotification()
     stateSprite = isPaused and pauseImage or playImage
     local notificationTimer = timer.new(0.15, timer.TimerType.AFTER, cleanUpTimers, #timers + 1)
     timers[#timers + 1] = notificationTimer
 end
 
+---initialize
 function gs.init()
     gameBoard = board.new(vector2.new(), vector2.new(originalWidth - 4, originalHeight - 4), padding.new(10), cellSize)
     local generationTimer = timer.new(0.1, timer.TimerType.EVERY, gameBoard.updateState, gameBoard)
     timers[#timers + 1] = generationTimer
 end
 
+---draw event handler
 function gs.drawHandler()
     love.graphics.push()
     alignmentVector.x = (newWidth - gameBoard.dimension.x * scalingFactor) / 2
@@ -61,6 +68,8 @@ function gs.drawHandler()
     end
 end
 
+---update event handler
+---@param dt number
 function gs.updateHandler(dt)
     for i = 1, #timers do
         if isPaused and timers[i].update == timer.TimerType.EVERY then
@@ -71,6 +80,7 @@ function gs.updateHandler(dt)
     end
 end
 
+---window resize event handler
 function gs.resizeHandler()
     newWidth, newHeight = love.window.getMode()
     local heightFactor = newHeight / originalHeight
@@ -78,6 +88,10 @@ function gs.resizeHandler()
     scalingFactor = math.min(heightFactor, widthFactor)
 end
 
+---onClick event handler
+---@param x number mouseX
+---@param y number mouseY
+---@param button number buttonPressed
 function gs.onClickHandler(x, y, button)
     if isGameStart then
         isGameStart = false
@@ -88,6 +102,8 @@ function gs.onClickHandler(x, y, button)
     end
 end
 
+---onKeyPress event handler
+---@param key string keyPressed
 function gs.onKeyPressHandler(key)
     if isGameStart then
         isGameStart = false
