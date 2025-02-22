@@ -42,11 +42,11 @@ function board.new(origin, dimension, pad, cellSize)
     local cells = {}
     local cellsPerRow = math.floor((dimension.x - (pad.left + pad.right)) / cellSize)
     local cellsPerColumn = math.floor((dimension.y - (pad.top + pad.bottom)) / cellSize)
-    for i = 1, cellsPerRow do
+    for i = 1, cellsPerColumn do
         cells[i] = {}
-        for j = 1, cellsPerColumn do
-            local cellOx = pad.left + (i - 1) * cellSize
-            local cellOy = pad.top + (j - 1) * cellSize
+        for j = 1, cellsPerRow do
+            local cellOx = pad.left + (j - 1) * cellSize
+            local cellOy = pad.top + (i - 1) * cellSize
             cells[i][j] = cell.new(vector2.new(cellOx, cellOy), vector2.new(cellSize, cellSize),
                 padding.new())
         end
@@ -109,17 +109,47 @@ function board:updateState()
     end
 end
 
+---binary search cell array
+---@param axis string
+---@param array cell[]
+---@param low number
+---@param high number
+---@param value number
+local function binarySearch(axis, array, low, high, value)
+    while low <= high do
+        local mid = low + math.floor((high - low) / 2)
+        local found = array[mid]:withinBounds(value, axis)
+
+        if found == 0 then
+            return mid
+        elseif found == 1 then
+            low = mid + 1
+        else
+            high = mid - 1
+        end
+    end
+    return 0
+end
+
+local function binaryCellIndexSearch(cells, x, y)
+    local tempArray = {}
+    for i = 1, #cells do
+        tempArray[i] = cells[i][1]
+    end
+    local cell_i = binarySearch("y", tempArray, 1, #tempArray, y)
+    local cell_j = binarySearch("x", cells[1], 1, #cells[1], x)
+    return cell_i, cell_j
+end
+
+
 ---handle onClick event
 ---@param mouseX number
 ---@param mouseY number
----@param scalingFactor number
-function board:onClickHandler(mouseX, mouseY, scalingFactor)
-    local x = mouseX - self.origin.x - self.pad.left
-    local y = mouseY - self.origin.y - self.pad.top
-    local cellSize = self.cells[1][1]:getDimensions() * scalingFactor
-    local i = math.ceil(x / cellSize)
-    local j = math.ceil(y / cellSize)
-    if i < 0 or i > self.cellsDimension.x or j < 0 or j > self.cellsDimension.y then
+function board:onClickHandler(mouseX, mouseY)
+    local x = mouseX - self.origin.x
+    local y = mouseY - self.origin.y
+    local i, j = binaryCellIndexSearch(self.cells, x, y)
+    if i == 0 or j == 0 then
         return
     end
     self.cells[i][j]:onClickHandler()

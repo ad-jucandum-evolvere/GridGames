@@ -98,7 +98,9 @@ function gs.onClickHandler(x, y, button)
         return
     end
     if button == 1 then
-        gameBoard:onClickHandler(x - alignmentVector.x, y - alignmentVector.y, scalingFactor)
+        ---@type vector2
+        local scaledMouseVector = vector2.new(x - alignmentVector.x, y - alignmentVector.y) / scalingFactor
+        gameBoard:onClickHandler(scaledMouseVector.x, scaledMouseVector.y)
     end
 end
 

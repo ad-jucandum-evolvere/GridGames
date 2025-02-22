@@ -76,4 +76,36 @@ function cell:updateState()
     self.nextState = nil
 end
 
+local function withinXBound(self, x)
+    local lower = self.origin.x
+    local upper = lower + self.dimension.x
+    if x > lower and x < upper then
+        return 0
+    elseif x < lower then
+        return -1
+    else
+        return 1
+    end
+end
+
+local function withinYBound(self, y)
+    local lower = self.origin.y
+    local upper = lower + self.dimension.y
+    if y > lower and y < upper then
+        return 0
+    elseif y < lower then
+        return -1
+    else
+        return 1
+    end
+end
+
+function cell:withinBounds(value, axis)
+    if axis == "x" then
+        return withinXBound(self, value)
+    else
+        return withinYBound(self, value)
+    end
+end
+
 return cell

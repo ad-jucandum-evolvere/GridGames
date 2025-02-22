@@ -50,9 +50,18 @@ local function mul(this, factor)
     return res
 end
 
+---scale Vector2 by inverse of factor
+---@param this vector2
+---@param factor number
+---@return vector2
+local function div(this, factor)
+    return mul(this, math.pow(factor, -1))
+end
+
 vector2_mt.__add = add
 vector2_mt.__sub = sub
 vector2_mt.__mul = mul
+vector2_mt.__div = div
 vector2_mt.__tostring = toString
 
 ---default constructor
