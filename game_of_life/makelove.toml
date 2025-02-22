@@ -4,7 +4,7 @@ keep_game_directory = false
 
 default_targets = ["win32", "win64", "macos", "lovejs"]
 build_directory = "bin"
-love_files = ["+*", "-*/.*", "-*/bin/*"]
+love_files = ["+*", "-*/.*", "-*/bin/*", "-*/resources/*.ai"]
 
 [archive_files]
 "../README.md" = "readme.md"

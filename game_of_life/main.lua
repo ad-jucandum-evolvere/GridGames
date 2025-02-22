@@ -3,16 +3,11 @@ if arg[#arg] == "debug" then
 end
 
 -- imports
-vector2 = require("fwk.graphics.vector2")
-padding = require("fwk.graphics.padding")
 color = require("fwk.graphics.color")
-container = require("fwk.graphics.container")
-timer = require("fwk.utils.timer")
-board = require("lib.entity.board")
 gameState = require("lib.core.game_state")
 
 -- common colors enum
-Colors = color.Color
+Colors = color.Colors
 
 function love.load()
     love.window.setTitle("Game of Life")
@@ -32,9 +27,7 @@ function love.mousepressed(x, y, button, isTouch)
 end
 
 function love.keypressed(key)
-    if key == "escape" then
-        love.event.quit(0)
-    end
+
     gameState.onKeyPressHandler(key)
 end
 

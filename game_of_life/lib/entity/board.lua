@@ -63,6 +63,7 @@ function board.new(origin, dimension, pad, cellSize)
     }, board_mt)
 end
 
+---draw board
 function board:draw()
     if #self.cells <= 0 then
         return
@@ -82,6 +83,7 @@ function board:draw()
     love.graphics.pop()
 end
 
+---reset board
 function board:reset()
     if #self.cells <= 0 then
         return
@@ -93,6 +95,7 @@ function board:reset()
     end
 end
 
+---update state of board and cells
 function board:updateState()
     for i = 1, #self.cells do
         for j = 1, #self.cells[i] do
@@ -106,6 +109,10 @@ function board:updateState()
     end
 end
 
+---handle onClick event
+---@param mouseX number
+---@param mouseY number
+---@param scalingFactor number
 function board:onClickHandler(mouseX, mouseY, scalingFactor)
     local x = mouseX - self.origin.x - self.pad.left
     local y = mouseY - self.origin.y - self.pad.top

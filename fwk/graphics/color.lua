@@ -1,5 +1,5 @@
 ---@class color
----@field rgba table
+---@field colorValues table
 local color = {}
 local color_mt = { __index = color }
 
@@ -29,10 +29,11 @@ function color:resetAlpha()
     return self
 end
 
----@enum Color
-color.Color = {
+---@enum Colors
+color.Colors = {
     black = color.new({ 0, 0, 0 }),
     white = color.new({ 255, 255, 255 }),
+    gray = color.new({ 128, 128, 128 }),
     red = color.new({ 255, 0, 0 }),
     green = color.new({ 0, 255, 0 }),
     blue = color.new({ 0, 0, 255 })

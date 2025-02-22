@@ -1,3 +1,9 @@
+vector2 = require("fwk.graphics.vector2")
+padding = require("fwk.graphics.padding")
+container = require("fwk.graphics.container")
+timer = require("fwk.utils.timer")
+board = require("lib.entity.board")
+
 local gs = {}
 
 ---@type board
@@ -7,10 +13,30 @@ local timers = {}
 local alignmentVector = vector2.new()
 local scalingFactor = 1
 local isPaused = true
+local isGameStart = true
 local isFullScreen = false
+local stateSprite = nil
 local cellSize = 8
 local originalWidth, originalHeight = love.window.getMode()
 local newWidth, newHeight = originalWidth, originalHeight
+
+-- Images
+local instructionSprite = love.graphics.newImage("resources/sprites/instructions.png")
+local pauseImage = love.graphics.newImage("resources/sprites/pause.png")
+local playImage = love.graphics.newImage("resources/sprites/play.png")
+
+local function cleanUpTimers(index)
+    for i = index, #timers do
+        timers[i] = timers[i + 1]
+    end
+    stateSprite = nil
+end
+
+local function gameStateNotification()
+    stateSprite = isPaused and pauseImage or playImage
+    local notificationTimer = timer.new(0.15, timer.TimerType.AFTER, cleanUpTimers, #timers + 1)
+    timers[#timers + 1] = notificationTimer
+end
 
 function gs.init()
     gameBoard = board.new(vector2.new(), vector2.new(originalWidth - 4, originalHeight - 4), padding.new(10), cellSize)
@@ -26,14 +52,22 @@ function gs.drawHandler()
     love.graphics.scale(scalingFactor, scalingFactor)
     gameBoard:draw()
     love.graphics.pop()
+
+    if isGameStart then
+        love.graphics.draw(instructionSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 150, 150)
+    end
+    if stateSprite ~= nil then
+        love.graphics.draw(stateSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 50, 50)
+    end
 end
 
 function gs.updateHandler(dt)
-    if isPaused then
-        return
-    end
     for i = 1, #timers do
+        if isPaused and timers[i].update == timer.TimerType.EVERY then
+            goto continue
+        end
         timers[i]:update(dt)
+        ::continue::
     end
 end
 
@@ -45,19 +79,35 @@ function gs.resizeHandler()
 end
 
 function gs.onClickHandler(x, y, button)
+    if isGameStart then
+        isGameStart = false
+        return
+    end
     if button == 1 then
         gameBoard:onClickHandler(x - alignmentVector.x, y - alignmentVector.y, scalingFactor)
     end
 end
 
 function gs.onKeyPressHandler(key)
+    if isGameStart then
+        isGameStart = false
+        if key == "escape" then
+            love.event.quit(0)
+        end
+        return
+    end
     if key == "space" then
-        isPaused = not isPaused
+        if stateSprite == nil then
+            isPaused = not isPaused
+            gameStateNotification()
+        end
     elseif key == "f11" then
         isFullScreen = not isFullScreen
         love.window.setFullscreen(isFullScreen)
     elseif key == "r" then
         gameBoard:reset()
+    elseif key == "escape" then
+        isGameStart = true
     end
 end
 

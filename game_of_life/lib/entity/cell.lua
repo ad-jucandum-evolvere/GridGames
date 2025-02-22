@@ -41,10 +41,6 @@ function cell:draw()
     love.graphics.pop()
 end
 
--- function cell:windowResizeHandler(factor)
---     self.sf = factor
--- end
-
 ---mouse click handler
 function cell:onClickHandler()
     self.isAlive = not self.isAlive
@@ -74,6 +70,7 @@ function cell:computeNextState(neighbors)
     end
 end
 
+---update cell state
 function cell:updateState()
     self.isAlive = self.nextState
     self.nextState = nil
