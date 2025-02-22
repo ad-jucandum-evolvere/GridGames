@@ -79,11 +79,11 @@ function vector2.new(x, y)
 end
 
 ---pre-fabricator
----@param point vector2
+---@param prefab vector2
 ---@return vector2
-function vector2.copy(point)
-    local copy = vector2.new(point.x, point.y)
-    return setmetatable(copy, getmetatable(point))
+function vector2.copy(prefab)
+    local copy = vector2.new(prefab.x, prefab.y)
+    return setmetatable(copy, getmetatable(prefab))
 end
 
 ---distance between current point and given point

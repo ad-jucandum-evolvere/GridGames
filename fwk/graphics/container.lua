@@ -24,11 +24,14 @@ function container:getContentDimension()
     return width, height
 end
 
+---fills container with current color
 function container:fillContent()
     local width, height = self:getContentDimension()
     love.graphics.rectangle("fill", self.pad.left, self.pad.top, width, height)
 end
 
+---fills container with current color with rounded corners
+---@param rd number
 function container:fillContentRounded(rd)
     local width, height = self:getContentDimension()
     love.graphics.rectangle("fill", self.pad.left, self.pad.top, width, height, rd, rd)
@@ -54,18 +57,25 @@ function container:innerGlow(color, alpha, size, isRounded)
     love.graphics.setColor(color:resetAlpha())
 end
 
+---draw margin
 function container:drawMargin()
     love.graphics.rectangle("line", 0, 0, self.dimension.x, self.dimension.y)
 end
 
+---draw rounded margin
+---@param rd number
 function container:drawMarginRounded(rd)
     love.graphics.rectangle("line", 0, 0, self.dimension.x, self.dimension.y, rd, rd)
 end
 
+---get the content dimensions
+---@return number width
+---@return number height
 function container:getDimensions()
     return self.dimension.x, self.dimension.y
 end
 
+---translate to container's origin
 function container:translateToOrigin()
     love.graphics.translate(self.origin.x, self.origin.y)
 end

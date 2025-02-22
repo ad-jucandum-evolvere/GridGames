@@ -3,6 +3,9 @@
 local color = {}
 local color_mt = { __index = color }
 
+---constructor
+---@param rgba table contains rgb or rgba values
+---@return color
 function color.new(rgba)
     local o = {}
     for i, v in ipairs(rgba) do
@@ -11,11 +14,16 @@ function color.new(rgba)
     return setmetatable(o, color_mt)
 end
 
+---set alpha value
+---@param alpha number
+---@return color
 function color:setAlpha(alpha)
     self[4] = alpha / 255
     return self
 end
 
+---reset color alpha
+---@return color
 function color:resetAlpha()
     self[4] = 1
     return self

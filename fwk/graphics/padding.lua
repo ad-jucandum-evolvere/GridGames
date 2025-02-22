@@ -52,11 +52,11 @@ function padding.new(...)
 end
 
 ---pre-fabricator
----@param padding padding
+---@param prefab padding
 ---@return padding
-function padding.copy(padding)
-    local copy = padding.new(padding.left, padding.top, padding.right, padding.bottom)
-    return setmetatable(copy, getmetatable(padding))
+function padding.copy(prefab)
+    local copy = prefab.new(prefab.left, prefab.top, prefab.right, prefab.bottom)
+    return setmetatable(copy, getmetatable(prefab))
 end
 
 return padding
