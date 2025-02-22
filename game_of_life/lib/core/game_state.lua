@@ -17,7 +17,7 @@ local scalingFactor = 1
 local isPaused = true
 local isGameStart = true
 local isFullScreen = false
-local stateSprite = nil
+local stateUpdateQueue = {}
 local cellSize = 8
 local originalWidth, originalHeight = love.window.getMode()
 local newWidth, newHeight = originalWidth, originalHeight
@@ -30,17 +30,16 @@ local playImage = love.graphics.newImage("resources/sprites/play.png")
 ---clean up expired timers from list
 ---@param index number
 local function cleanUpTimers(index)
-    for i = index, #timers do
-        timers[i] = timers[i + 1]
-    end
-    stateSprite = nil
+    timers[index] = nil
+    stateUpdateQueue[index] = nil
 end
 
 ---update game state notification
 local function gameStateNotification()
-    stateSprite = isPaused and pauseImage or playImage
-    local notificationTimer = timer.new(0.15, timer.TimerType.AFTER, cleanUpTimers, #timers + 1)
+    local stateSprite = isPaused and pauseImage or playImage
+    local notificationTimer = timer.new(0.2, timer.TimerType.AFTER, cleanUpTimers, #timers + 1)
     timers[#timers + 1] = notificationTimer
+    stateUpdateQueue[#timers] = stateSprite
 end
 
 ---initialize
@@ -60,22 +59,22 @@ function gs.drawHandler()
     gameBoard:draw()
     love.graphics.pop()
 
+    for key, stateSprite in pairs(stateUpdateQueue) do
+        love.graphics.draw(stateSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 50, 50)
+    end
     if isGameStart then
         love.graphics.draw(instructionSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 150, 150)
-    end
-    if stateSprite ~= nil then
-        love.graphics.draw(stateSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 50, 50)
     end
 end
 
 ---update event handler
 ---@param dt number
 function gs.updateHandler(dt)
-    for i = 1, #timers do
-        if isPaused and timers[i].update == timer.TimerType.EVERY then
+    for key, gameTimer in pairs(timers) do
+        if isPaused and gameTimer.update == timer.TimerType.EVERY then
             goto continue
         end
-        timers[i]:update(dt)
+        gameTimer:update(dt)
         ::continue::
     end
 end
@@ -115,10 +114,8 @@ function gs.onKeyPressHandler(key)
         return
     end
     if key == "space" then
-        if stateSprite == nil then
-            isPaused = not isPaused
-            gameStateNotification()
-        end
+        isPaused = not isPaused
+        gameStateNotification()
     elseif key == "f11" then
         isFullScreen = not isFullScreen
         love.window.setFullscreen(isFullScreen)
