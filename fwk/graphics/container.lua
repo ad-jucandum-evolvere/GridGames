@@ -38,16 +38,19 @@ end
 ---@param color color
 ---@param alpha number
 ---@param size number
----@param rd? number
-function container:addGlow(color, alpha, size, rd)
-    local width, height = self:getContentDimension()
+---@param isRounded? boolean
+function container:innerGlow(color, alpha, size, isRounded)
+    ---@type vector2
+    local glowDimension = vector2.new(self:getContentDimension()) - vector2.new(size)
+    local glowOrigin = vector2.new(self.pad.left, self.pad.right) + vector2.new(size / 2)
     love.graphics.setColor(color:setAlpha(alpha))
-    if rd then
-        love.graphics.rectangle("fill", self.pad.left - size, self.pad.top - size, width + size * 2, height + size * 2,
-            rd, rd)
+    love.graphics.setLineWidth(size)
+    if isRounded then
+        love.graphics.rectangle("line", glowOrigin.x, glowOrigin.y, glowDimension.x, glowDimension.y, size, size)
     else
-        love.graphics.rectangle("fill", self.pad.left - size, self.pad.top - size, width + size * 2, height + size * 2)
+        love.graphics.rectangle("line", glowOrigin.x, glowOrigin.y, glowDimension.x, glowDimension.y)
     end
+    love.graphics.setLineWidth(1)
     love.graphics.setColor(color:resetAlpha())
 end
 

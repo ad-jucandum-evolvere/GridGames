@@ -48,7 +48,7 @@ function board.new(origin, dimension, pad, cellSize)
             local cellOx = pad.left + (i - 1) * cellSize
             local cellOy = pad.top + (j - 1) * cellSize
             cells[i][j] = cell.new(vector2.new(cellOx, cellOy), vector2.new(cellSize, cellSize),
-                padding.new(1))
+                padding.new())
         end
     end
     local newDimension = vector2.new(pad.left + pad.right + cellsPerRow * cellSize,

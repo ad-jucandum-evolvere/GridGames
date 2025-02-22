@@ -7,12 +7,13 @@ local timers = {}
 local alignmentVector = vector2.new()
 local scalingFactor = 1
 local isPaused = true
+local isFullScreen = false
+local cellSize = 8
 local originalWidth, originalHeight = love.window.getMode()
 local newWidth, newHeight = originalWidth, originalHeight
 
 function gs.init()
-    local cellSize = 10
-    gameBoard = board.new(vector2.new(), vector2.new(originalWidth - 10, originalHeight - 10), padding.new(10), cellSize)
+    gameBoard = board.new(vector2.new(), vector2.new(originalWidth - 4, originalHeight - 4), padding.new(10), cellSize)
     local generationTimer = timer.new(0.1, timer.TimerType.EVERY, gameBoard.updateState, gameBoard)
     timers[#timers + 1] = generationTimer
 end
@@ -52,6 +53,9 @@ end
 function gs.onKeyPressHandler(key)
     if key == "space" then
         isPaused = not isPaused
+    elseif key == "f11" then
+        isFullScreen = not isFullScreen
+        love.window.setFullscreen(isFullScreen)
     elseif key == "r" then
         gameBoard:reset()
     end

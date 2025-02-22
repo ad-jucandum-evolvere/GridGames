@@ -32,6 +32,9 @@ function love.mousepressed(x, y, button, isTouch)
 end
 
 function love.keypressed(key)
+    if key == "escape" then
+        love.event.quit(0)
+    end
     gameState.onKeyPressHandler(key)
 end
 

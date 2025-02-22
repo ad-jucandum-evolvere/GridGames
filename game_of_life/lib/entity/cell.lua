@@ -29,13 +29,14 @@ end
 function cell:draw()
     love.graphics.push()
     self:translateToOrigin()
-    if self.isAlive then
-        self:addGlow(cellAliveColor, 120, 2, 4)
-        love.graphics.setColor(cellAliveColor)
-    else
-        love.graphics.setColor(cellDeadColor)
-    end
+    local cellColor = self.isAlive and cellAliveColor or cellDeadColor
+    love.graphics.setColor(cellColor)
     self:fillContent()
+    love.graphics.setColor(Colors.black)
+    self:drawMargin()
+    if self.isAlive then
+        self:innerGlow(Colors.white, 40, 2, true)
+    end
     love.graphics.setColor(Colors.white)
     love.graphics.pop()
 end

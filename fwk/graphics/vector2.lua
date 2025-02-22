@@ -56,7 +56,7 @@ vector2_mt.__mul = mul
 vector2_mt.__tostring = toString
 
 ---default constructor
----@overload fun(x: number, y:number): vector2
+---@overload fun(x: number, y?:number): vector2
 ---@return vector2
 function vector2.new()
     return setmetatable({
@@ -67,11 +67,11 @@ end
 
 ---parameterized constructor for different x, y values
 ---@param x number
----@param y number
+---@param y? number
 ---@return vector2
 function vector2.new(x, y)
     x = x or 0
-    y = y or 0
+    y = y or x or 0
     return setmetatable({
         x = x,
         y = y
