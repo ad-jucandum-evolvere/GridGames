@@ -27,6 +27,11 @@ local instructionSprite = love.graphics.newImage("resources/sprites/instructions
 local pauseImage = love.graphics.newImage("resources/sprites/pause.png")
 local playImage = love.graphics.newImage("resources/sprites/play.png")
 
+--- Audio
+local pauseSound = love.audio.newSource("resources/audio/off.ogg", "static")
+local playSound = love.audio.newSource("resources/audio/on.ogg", "static")
+local bgm = love.audio.newSource("resources/audio/lost in the meadows_0.flac", "stream")
+
 ---clean up expired timers from list
 ---@param index number
 local function cleanUpTimers(index)
@@ -37,6 +42,8 @@ end
 ---update game state notification
 local function gameStateNotification()
     local stateSprite = isPaused and pauseImage or playImage
+    local stateSound = isPaused and pauseSound or playSound
+    love.audio.play(stateSound)
     local notificationTimer = timer.new(0.2, timer.TimerType.AFTER, cleanUpTimers, #timers + 1)
     timers[#timers + 1] = notificationTimer
     stateUpdateQueue[#timers] = stateSprite
@@ -44,6 +51,7 @@ end
 
 ---initialize
 function gs.init()
+    love.audio.play(bgm)
     gameBoard = board.new(vector2.new(), vector2.new(originalWidth - 4, originalHeight - 4), padding.new(10), cellSize)
     local generationTimer = timer.new(0.1, timer.TimerType.EVERY, gameBoard.updateState, gameBoard)
     timers[#timers + 1] = generationTimer
@@ -94,6 +102,7 @@ end
 function gs.onClickHandler(x, y, button)
     if isGameStart then
         isGameStart = false
+        love.audio.play(bgm)
         return
     end
     if button == 1 then
@@ -111,6 +120,7 @@ function gs.onKeyPressHandler(key)
         if key == "escape" then
             love.event.quit(0)
         end
+        love.audio.play(bgm)
         return
     end
     if key == "space" then
@@ -122,6 +132,7 @@ function gs.onKeyPressHandler(key)
     elseif key == "r" then
         gameBoard:reset()
     elseif key == "escape" then
+        love.audio.pause(bgm)
         isGameStart = true
     end
 end

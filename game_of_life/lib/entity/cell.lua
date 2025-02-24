@@ -7,6 +7,9 @@ local cell_mt = { __index = cell }
 local cellDeadColor = color.new({ 84, 40, 54 })
 local cellAliveColor = color.new({ 24, 99, 173 })
 
+--- cell audio
+local cellClickSound = love.audio.newSource("resources/audio/button1.wav", "static")
+
 ---constructor
 ---@param origin vector2
 ---@param size vector2
@@ -31,7 +34,7 @@ function cell:draw()
     self:translateToOrigin()
     local cellColor = self.isAlive and cellAliveColor or cellDeadColor
     love.graphics.setColor(cellColor)
-    self:fillContent()
+    self:fillContentRounded(self.dimension.x / 2)
     love.graphics.setColor(Colors.black)
     self:drawMargin()
     if self.isAlive then
@@ -44,6 +47,7 @@ end
 ---mouse click handler
 function cell:onClickHandler()
     self.isAlive = not self.isAlive
+    love.audio.play(cellClickSound)
 end
 
 ---compute next state of cell
