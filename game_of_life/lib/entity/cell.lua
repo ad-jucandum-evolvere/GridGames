@@ -4,8 +4,8 @@
 local cell = container.new()
 local cell_mt = { __index = cell }
 
-local cellDeadColor = color.new({ 84, 40, 54 })
-local cellAliveColor = color.new({ 24, 99, 173 })
+local cellDeadColor = color.new("#542836")
+local cellAliveColor = color.new("#1863ad")
 
 --- cell audio
 local cellClickSound = love.audio.newSource("resources/audio/button1.wav", "static")

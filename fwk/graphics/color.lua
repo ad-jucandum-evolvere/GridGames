@@ -3,15 +3,28 @@
 local color = {}
 local color_mt = { __index = color }
 
----constructor
----@param rgba table contains rgb or rgba values
----@return color
-function color.new(rgba)
-    local o = {}
-    for i, v in ipairs(rgba) do
-        o[i] = v / 255
+---checks whether string is empty or not
+---@param str string
+---@return string|nil
+local function isEmpty(str)
+    if str == "" or str == nil then
+        return nil
     end
-    return setmetatable(o, color_mt)
+    return str
+end
+
+---constructor
+---@param colorHex string hex string for color. supports rgb or rgba values
+---@return color
+function color.new(colorHex)
+    local colorPattern = "^#(%x%x)(%x%x)(%x%x)(%x?%x?)"
+    local _, _, red, green, blue, alpha = string.find(colorHex, colorPattern)
+    red = tonumber(red, 16)
+    green = tonumber(green, 16)
+    blue = tonumber(blue, 16)
+    alpha = isEmpty(alpha) or "ff"
+    alpha = tonumber(alpha, 16)
+    return setmetatable({ red / 255, green / 255, blue / 255, alpha / 255 }, color_mt)
 end
 
 ---set alpha value
@@ -31,12 +44,12 @@ end
 
 ---@enum Colors
 color.Colors = {
-    black = color.new({ 0, 0, 0 }),
-    white = color.new({ 255, 255, 255 }),
-    gray = color.new({ 128, 128, 128 }),
-    red = color.new({ 255, 0, 0 }),
-    green = color.new({ 0, 255, 0 }),
-    blue = color.new({ 0, 0, 255 })
+    black = color.new("#000000"),
+    white = color.new("#ffffff"),
+    gray = color.new("#888888"),
+    red = color.new("#ff0000"),
+    green = color.new("#00ff00"),
+    blue = color.new("#0000ff")
 }
 
 return color
