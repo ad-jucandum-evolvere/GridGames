@@ -10,12 +10,13 @@ local gs = {}
 
 ---@type board
 local gameBoard = nil
----@type timer[]
+---@type table<string|integer, timer>
 local timers = {}
 local alignmentVector = vector2.new()
 local scalingFactor = 1
 local isPaused = true
-local isGameStart = true
+local isStartScreen = true
+local isMuted = false
 local isFullScreen = false
 local stateUpdateQueue = {}
 local cellSize = 8
@@ -43,7 +44,7 @@ end
 local function gameStateNotification()
     local stateSprite = isPaused and pauseImage or playImage
     local stateSound = isPaused and pauseSound or playSound
-    love.audio.play(stateSound)
+    stateSound:play()
     local notificationTimer = timer.new(0.2, timer.TimerType.AFTER, cleanUpTimers, #timers + 1)
     timers[#timers + 1] = notificationTimer
     stateUpdateQueue[#timers] = stateSprite
@@ -51,10 +52,11 @@ end
 
 ---initialize
 function gs.init()
-    love.audio.play(bgm)
+    bgm:setLooping(true)
+    bgm:play()
     gameBoard = board.new(vector2.new(), vector2.new(originalWidth - 4, originalHeight - 4), padding.new(10), cellSize)
     local generationTimer = timer.new(0.1, timer.TimerType.EVERY, gameBoard.updateState, gameBoard)
-    timers[#timers + 1] = generationTimer
+    timers["generationTimer"] = generationTimer
 end
 
 ---draw event handler
@@ -70,7 +72,7 @@ function gs.drawHandler()
     for key, stateSprite in pairs(stateUpdateQueue) do
         love.graphics.draw(stateSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 50, 50)
     end
-    if isGameStart then
+    if isStartScreen then
         love.graphics.draw(instructionSprite, newWidth / 2, newHeight / 2, 0, 1, 1, 150, 150)
     end
 end
@@ -79,7 +81,7 @@ end
 ---@param dt number
 function gs.updateHandler(dt)
     for key, gameTimer in pairs(timers) do
-        if isPaused and gameTimer.update == timer.TimerType.EVERY then
+        if isPaused and key == "generationTimer" then
             goto continue
         end
         gameTimer:update(dt)
@@ -100,9 +102,9 @@ end
 ---@param y number mouseY
 ---@param button number buttonPressed
 function gs.onClickHandler(x, y, button)
-    if isGameStart then
-        isGameStart = false
-        love.audio.play(bgm)
+    if isStartScreen then
+        isStartScreen = false
+        bgm:play()
         return
     end
     if button == 1 then
@@ -115,25 +117,30 @@ end
 ---onKeyPress event handler
 ---@param key string keyPressed
 function gs.onKeyPressHandler(key)
-    if isGameStart then
-        isGameStart = false
+    if key == "f11" then
+        isFullScreen = not isFullScreen
+        love.window.setFullscreen(isFullScreen)
+        return
+    end
+    if isStartScreen then
+        isStartScreen = false
         if key == "escape" then
             love.event.quit(0)
         end
-        love.audio.play(bgm)
-        return
+        bgm:play()
     end
     if key == "space" then
         isPaused = not isPaused
         gameStateNotification()
-    elseif key == "f11" then
-        isFullScreen = not isFullScreen
-        love.window.setFullscreen(isFullScreen)
     elseif key == "r" then
         gameBoard:reset()
+    elseif key == "m" then
+        isMuted = not isMuted
+        local volumeLevel = isMuted and 0.0 or 1.0
+        love.audio.setVolume(volumeLevel)
     elseif key == "escape" then
-        love.audio.pause(bgm)
-        isGameStart = true
+        bgm:pause()
+        isStartScreen = true
     end
 end
 

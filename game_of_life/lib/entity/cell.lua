@@ -34,7 +34,7 @@ function cell:draw()
     self:translateToOrigin()
     local cellColor = self.isAlive and cellAliveColor or cellDeadColor
     love.graphics.setColor(cellColor)
-    self:fillContentRounded(self.dimension.x / 2)
+    self:fillContent()
     love.graphics.setColor(Colors.black)
     self:drawMargin()
     if self.isAlive then
@@ -47,7 +47,7 @@ end
 ---mouse click handler
 function cell:onClickHandler()
     self.isAlive = not self.isAlive
-    love.audio.play(cellClickSound)
+    cellClickSound:play()
 end
 
 ---compute next state of cell
