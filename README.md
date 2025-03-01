@@ -10,7 +10,7 @@ GridGames is a compilation of grid based games built using the [LÖVE](https://l
 - [Python 3.7 or above](https://www.python.org/downloads/)
 - [Makelove](https://github.com/pfirsich/makelove)
 
-LÖVE and Makelove should be in your PATH environment variable.
+LÖVE, Python, and Makelove should be in your PATH environment variable.
 
 ### Building the game
 
