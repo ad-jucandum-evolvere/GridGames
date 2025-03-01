@@ -19,9 +19,9 @@ end
 function color.new(colorHex)
     local colorPattern = "^#(%x%x)(%x%x)(%x%x)(%x?%x?)"
     local _, _, red, green, blue, alpha = string.find(colorHex, colorPattern)
-    red = tonumber(red, 16)
-    green = tonumber(green, 16)
-    blue = tonumber(blue, 16)
+    red = red and tonumber(red, 16) or 255
+    green = green and tonumber(green, 16) or 255
+    blue = blue and tonumber(blue, 16) or 255
     alpha = isEmpty(alpha) or "ff"
     alpha = tonumber(alpha, 16)
     return setmetatable({ red / 255, green / 255, blue / 255, alpha / 255 }, color_mt)
