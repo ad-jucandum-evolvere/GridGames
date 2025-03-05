@@ -4,33 +4,22 @@ end
 
 function love.load()
     Object = require("lib.vendor.classic")
-    require("lib.common.grid")
-    require("lib.common.cell")
+    require("minesweeper.src.game_state")
+    require("src.cell")
 
     love.window.setTitle("Minesweeper")
+    love.window.setMode(500, 500)
 
-    local cell_size = 30
-    local grid_resolution = love.graphics.getHeight() / cell_size
-    -- local left = love.graphics.getWidth() / 2 - (grid_resolution * cell_size / 2)
-    -- local top = love.graphics.getHeight() / 2 - (grid_resolution * cell_size / 2)
-
-    grid = Grid:new(0, 0, grid_resolution, cell_size)
+    game = Game:new()
 end
 
 function love.draw()
-    grid:draw()
+    game:draw()
 end
 
 function love.update(dt)
-    grid:update(dt)
+    game:update(dt)
 end
 
-function love.mousepressed(x, y, button)
-    -- if left mouse button is pressed
-    if button == 1 then
-        -- start toggling the item value
-        grid:toggleCell(x, y)
-    end
-end
 
 

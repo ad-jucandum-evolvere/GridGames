@@ -1,5 +1,4 @@
 Cell = Object:extend()
-timerCount = 0.2 -- milliseconds
 
 ---constructor
 ---@param x number
@@ -15,27 +14,26 @@ function Cell:new(x, y, size, value)
     cell.y = y or 0
     cell.size = size or 0
     cell.value = value or 0
-    cell.timer = 0
 
     return cell
-end
-
-function Cell:update(dt)
-    if self.value > 0 then
-        self.timer = self.timer + dt
-        if self.timer >= timerCount then
-            self.value = math.max(0, self.value - 0.25)
-            self.timer = 0
-        end
-    end
 end
 
 function Cell:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
 
-    love.graphics.setColor(1, 1, 1, self.value)
-    love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
+    love.graphics.setColor(1, 1, 1, 1)
+    local offset = -(self.size / 2) + 2; -- TODO: Need to fix this to align to center
+    love.graphics.print(self.value, self.x, self.y, 0, 1, 1, offset, offset)
 end
+
+function Cell:update()
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
+
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.print(self.value)
+end
+
 
 
