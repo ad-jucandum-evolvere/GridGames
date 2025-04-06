@@ -51,8 +51,9 @@ function Cell.new(x, y, size, value)
 
     local function showCellTextValue()
         resetColor()
-        local offset = -(self.size / 2) + 2  -- TODO: Adjust to center the text properly
-        love.graphics.print((self.value == 10000) and "M" or self.value, self.x, self.y, 0, 1, 1, offset, offset)
+        local vertical_offset = love.graphics.getFont():getHeight() / 2
+        local offset = -(self.size / 2) + vertical_offset
+        love.graphics.printf((self.value == 10000) and "M" or self.value, self.x, self.y, self.size, "center", 0, 1, 1, 0, offset)
     end
 
     function self:draw()
