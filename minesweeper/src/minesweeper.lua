@@ -3,15 +3,21 @@ Minesweeper.__index = Minesweeper
 
 local MINE = 10000
 local EMPTY = 0
+local CASCADE_EFFECT = true
 
-function Minesweeper.new(mines)
+function Minesweeper.new(gridX, gridY, difficulty)
     local Cell = require("src.cell")
 
     local self = setmetatable({}, Minesweeper)
+    local grid_x = math.max(3, math.min(gridX, 25))
+    local grid_y = math.max(3, math.min(gridY, 15))
+    local percentage = (difficulty == "medium" and 0.15) or (difficulty == "easy" and 0.1) or 0.2
+    local size = 50
+
+    love.window.setMode(grid_x * size, grid_y * size)
     self.state = {}
-    self.state.cell_size = 50
-    self.state.board_resolution = love.graphics.getHeight() / self.state.cell_size
-    self.state.mines_count = mines
+    self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
+
     ---@type Cell[][]
     self.state.cells = {}
     self.state.has_clicked_mine = false
@@ -19,8 +25,8 @@ function Minesweeper.new(mines)
     local mine_positions = {}
 
     local function generateAdjacentCells()
-        for i = 1, self.state.board_resolution do
-            for j = 1, self.state.board_resolution do
+        for i = 1, grid_x do
+            for j = 1, grid_y do
                 if self.state.cells[i][j].value ~= MINE then
                     local adjacent_mines = 0
                     local cells = self.state.cells
@@ -33,7 +39,7 @@ function Minesweeper.new(mines)
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- top right
-                    if i < self.state.board_resolution and j > 1 and cells[i + 1][j - 1].value == MINE then
+                    if i < grid_x and j > 1 and cells[i + 1][j - 1].value == MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
 
@@ -43,20 +49,20 @@ function Minesweeper.new(mines)
                     end
 
                     -- right
-                    if i < self.state.board_resolution and cells[i + 1][j].value == MINE then
+                    if i < grid_x and cells[i + 1][j].value == MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
 
                     -- bottom left
-                    if i > 1 and j < self.state.board_resolution and cells[i - 1][j + 1].value == MINE then
+                    if i > 1 and j < grid_y and cells[i - 1][j + 1].value == MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- bottom
-                    if j < self.state.board_resolution and cells[i][j + 1].value == MINE then
+                    if j < grid_y and cells[i][j + 1].value == MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- bottom right
-                    if i < self.state.board_resolution and j < self.state.board_resolution and cells[i + 1][j + 1].value == MINE then
+                    if i < grid_x and j < grid_y and cells[i + 1][j + 1].value == MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     cells[i][j].value = adjacent_mines
@@ -67,11 +73,8 @@ function Minesweeper.new(mines)
 
     local function generateMines()
         for c = 1, self.state.mines_count do
-            local i = math.random(1, self.state.board_resolution)
-            local j = math.random(1, self.state.board_resolution)
-            local x = ((i - 1) * self.state.cell_size)
-            local y = ((j - 1) * self.state.cell_size)
-            print(i, j, x, y)
+            local i = math.random(1, grid_x)
+            local j = math.random(1, grid_y)
             self.state.cells[i][j].value = MINE
             mine_positions[c] = { i, j }
         end
@@ -79,33 +82,41 @@ function Minesweeper.new(mines)
     end
 
     local function generateEmptyCells()
-        for i = 1, self.state.board_resolution do
-            local x = ((i - 1) * self.state.cell_size)
+        for i = 1, grid_x do
+            local x = ((i - 1) * size)
             self.state.cells[i] = {}
-            for j = 1, self.state.board_resolution do
-                local y = ((j - 1) * self.state.cell_size)
-                self.state.cells[i][j] = Cell.new(x, y, self.state.cell_size, EMPTY);
+            for j = 1, grid_y do
+                local y = ((j - 1) * size)
+                self.state.cells[i][j] = Cell.new(x, y, size, EMPTY);
             end
         end
-        -- print(getmetatable(self.state.cells[1][1]) == getmetatable(self.state.cells[1][2]))
         generateMines()
     end
 
     function self:draw()
-        for i = 1, self.state.board_resolution do
-            for j = 1, self.state.board_resolution do
+        for i = 1, grid_x do
+            for j = 1, grid_y do
                 local cell = self.state.cells[i][j]
                 cell:draw()
             end
         end
     end
 
-    function self:updateCell(x, y)
+    local function revealCell(i, j)
+        self.state.cells[i][j].hidden = false
+    end
+
+    local function openCell(x, y)
         if self.state.has_clicked_mine == false then
-            local i = math.floor(x / self.state.cell_size) + 1
-            local j = math.floor(y / self.state.cell_size) + 1
+            local i = math.floor(x / size) + 1
+            local j = math.floor(y / size) + 1
+            self.state.cells[i][j].flagged = false
             if self.state.cells[i][j].hidden == true then
-                self.state.cells[i][j].hidden = false
+                if CASCADE_EFFECT == true then
+                    revealCell(i, j)
+                else
+                    self.state.cells[i][j].hidden = false
+                end
             end
             if self.state.cells[i][j].value == MINE then
                 self.state.has_clicked_mine = true;
@@ -114,6 +125,34 @@ function Minesweeper.new(mines)
                 end
             end
         end
+    end
+
+    local function flagCell(x, y)
+        if self.state.has_clicked_mine == false then
+            local i = math.floor(x / size) + 1
+            local j = math.floor(y / size) + 1
+            if self.state.cells[i][j].hidden == true then
+                if self.state.cells[i][j].flagged == false then
+                    self.state.cells[i][j].flagged = true
+                else
+                    self.state.cells[i][j].flagged = false
+                end
+            end
+        end
+    end
+
+    function love.mousepressed(x, y, button)
+        if button == 1 then
+            openCell(x, y)
+        elseif button == 2 then
+            flagCell(x, y)
+        end
+
+        -- if x > 10 and x < 30 and y > (grid_y * size) + 20 and y < (grid_y * size) + 40 then
+        --     self.state.cells = {}
+        --     self.state.has_clicked_mine = false
+        --     generateEmptyCells()
+        -- end
     end
 
     generateEmptyCells()

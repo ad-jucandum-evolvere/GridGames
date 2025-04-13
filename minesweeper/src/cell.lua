@@ -11,6 +11,14 @@ function Cell.new(x, y, size, value)
     self.size = size or 0
     self.value = value or -1
     self.hidden = true
+    self.flagged = false
+
+    local function loadImage(path)
+        local info = love.filesystem.getInfo(path)
+        if info then
+            return love.graphics.newImage(path)
+        end
+    end
 
     local function resetColor()
         love.graphics.setColor(1, 1, 1, 1)
@@ -19,6 +27,18 @@ function Cell.new(x, y, size, value)
     local function setDefaultBorder()
         resetColor()
         love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
+    end
+
+    local function showCellFlag()
+        resetColor()
+        image = loadImage("assets/flag.png")
+        factor = self.size * 0.6
+        scale = factor / image:getWidth()
+        offsetX = (self.size - (image:getWidth() * scale)) / 2
+        offsetY = (self.size - (image:getHeight() * scale)) / 2
+        love.graphics.push()
+        love.graphics.draw(image, self.x + offsetX, self.y + offsetY, 0, scale, scale)
+        love.graphics.pop()
     end
 
     local function setDefaultFill()
@@ -60,22 +80,42 @@ function Cell.new(x, y, size, value)
         if self.value == 10000 then -- Mine
             if self.hidden == false then
                 setMineCellColor()
+                if self.flagged == true then
+                    showCellFlag()
+                end
             else
                 setDefaultCellColor()
+                if self.flagged == true then
+                    showCellFlag()
+                end
             end
         elseif self.value == 0 then
             if self.hidden == false then
                 setDarkerBackground()
-                showCellTextValue()
+                if self.flagged == true then
+                    showCellFlag()
+                else
+                    showCellTextValue()
+                end
             else
                 setDefaultCellColor()
+                if self.flagged == true then
+                    showCellFlag()
+                end
             end
         else
             if self.hidden == false then
                 setDarkerBackground()
-                showCellTextValue()
+                if self.flagged == true then
+                    showCellFlag()
+                else
+                    showCellTextValue()
+                end
             else
                 setDefaultCellColor()
+                if self.flagged == true then
+                    showCellFlag()
+                end
             end
         end
 
