@@ -11,6 +11,7 @@ function Cell.new(x, y, size, value, debug_mode)
     self.value = value or -1
     self.hidden = true
     self.flagged = false
+    self.complete = false
 
     local function loadImage(path)
         local info = love.filesystem.getInfo(path)
@@ -53,8 +54,14 @@ function Cell.new(x, y, size, value, debug_mode)
 
     local function setMineCellColor()
         setDefaultBorder()
-        love.graphics.setColor(0.5, 0, 0, 1)
-        love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
+        if self.complete then
+            love.graphics.setColor(0, 0.5, 0, 1)
+            love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
+        else
+            love.graphics.setColor(0.5, 0, 0, 1)
+            love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
+        end
+
     end
 
     local function setDarkerFill()

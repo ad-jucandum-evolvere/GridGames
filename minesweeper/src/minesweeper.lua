@@ -3,7 +3,7 @@ Minesweeper.__index = Minesweeper
 
 local MINE = 10000
 local EMPTY = 0
-local CASCADE_EFFECT = true
+local CASCADE_EFFECT = false
 local DEBUG_MODE = false
 
 function Minesweeper.new(gridX, gridY, difficulty)
@@ -106,23 +106,9 @@ function Minesweeper.new(gridX, gridY, difficulty)
         generateMines()
     end
 
-    function self:draw()
-        if self.state.non_mines == 0 then
-            self.state = {}
-            self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
-            self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
-            generateEmptyCells()
-        end
-        for i = 1, grid_x do
-            for j = 1, grid_y do
-                local cell = self.state.cells[i][j]
-                cell:draw()
-            end
-        end
-    end
-
     local function revealCell(i, j)
         self.state.cells[i][j].hidden = false
+        self.state.non_mines = self.state.non_mines - 1
     end
 
     local function openCell(x, y)
@@ -144,6 +130,16 @@ function Minesweeper.new(gridX, gridY, difficulty)
                     self.state.cells[v[1]][v[2]].hidden = false
                 end
             end
+            if self.state.non_mines == 0 then
+                print("Level Complete")
+                for c, v in ipairs(mine_positions) do
+                    self.state.cells[v[1]][v[2]].hidden = false
+                    self.state.cells[v[1]][v[2]].complete = true
+                end
+                -- self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
+                -- self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
+                -- generateEmptyCells()
+            end
         end
     end
 
@@ -157,6 +153,15 @@ function Minesweeper.new(gridX, gridY, difficulty)
                 else
                     self.state.cells[i][j].flagged = false
                 end
+            end
+        end
+    end
+
+    function self:draw()
+        for i = 1, grid_x do
+            for j = 1, grid_y do
+                local cell = self.state.cells[i][j]
+                cell:draw()
             end
         end
     end
