@@ -2,8 +2,7 @@
 local Cell = {}
 Cell.__index = Cell
 
-local DEBUG_MODE = true
-function Cell.new(x, y, size, value)
+function Cell.new(x, y, size, value, debug_mode)
     --- @class Cell
     local self = setmetatable({}, Cell)
     self.x = x or 0
@@ -71,9 +70,11 @@ function Cell.new(x, y, size, value)
 
     local function showCellTextValue()
         resetColor()
+        love.graphics.push()
         local vertical_offset = love.graphics.getFont():getHeight() / 2
         local offset = -(self.size / 2) + vertical_offset
         love.graphics.printf((self.value == 10000) and "M" or self.value, self.x, self.y, self.size, "center", 0, 1, 1, 0, offset)
+        love.graphics.pop()
     end
 
     function self:draw()
@@ -120,7 +121,7 @@ function Cell.new(x, y, size, value)
         end
 
 
-        if DEBUG_MODE == true then
+        if debug_mode == true then
             showCellTextValue()
         end
     end

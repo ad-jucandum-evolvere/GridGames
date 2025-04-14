@@ -4,6 +4,7 @@ Minesweeper.__index = Minesweeper
 local MINE = 10000
 local EMPTY = 0
 local CASCADE_EFFECT = true
+local DEBUG_MODE = false
 
 function Minesweeper.new(gridX, gridY, difficulty)
     local Cell = require("src.cell")
@@ -14,9 +15,11 @@ function Minesweeper.new(gridX, gridY, difficulty)
     local percentage = (difficulty == "medium" and 0.15) or (difficulty == "easy" and 0.1) or 0.2
     local size = 50
 
+    love.graphics.setNewFont(20)
     love.window.setMode(grid_x * size, grid_y * size)
     self.state = {}
     self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
+    self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
 
     ---@type Cell[][]
     self.state.cells = {}
@@ -71,13 +74,23 @@ function Minesweeper.new(gridX, gridY, difficulty)
         end
     end
 
-    local function generateMines()
-        for c = 1, self.state.mines_count do
-            local i = math.random(1, grid_x)
-            local j = math.random(1, grid_y)
-            self.state.cells[i][j].value = MINE
-            mine_positions[c] = { i, j }
+    local function generateRandomMine(count)
+        if (count > self.state.mines_count) then
+            return
         end
+        local i = math.random(1, grid_x)
+        local j = math.random(1, grid_y)
+        if self.state.cells[i][j].value ~= MINE then
+            mine_positions[count] = { i, j }
+            self.state.cells[i][j].value = MINE
+            generateRandomMine(count + 1)
+        else
+            generateRandomMine(count)
+        end
+    end
+
+    local function generateMines()
+        generateRandomMine(1)
         generateAdjacentCells()
     end
 
@@ -87,13 +100,19 @@ function Minesweeper.new(gridX, gridY, difficulty)
             self.state.cells[i] = {}
             for j = 1, grid_y do
                 local y = ((j - 1) * size)
-                self.state.cells[i][j] = Cell.new(x, y, size, EMPTY);
+                self.state.cells[i][j] = Cell.new(x, y, size, EMPTY, DEBUG_MODE);
             end
         end
         generateMines()
     end
 
     function self:draw()
+        if self.state.non_mines == 0 then
+            self.state = {}
+            self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
+            self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
+            generateEmptyCells()
+        end
         for i = 1, grid_x do
             for j = 1, grid_y do
                 local cell = self.state.cells[i][j]
@@ -116,6 +135,7 @@ function Minesweeper.new(gridX, gridY, difficulty)
                     revealCell(i, j)
                 else
                     self.state.cells[i][j].hidden = false
+                    self.state.non_mines = self.state.non_mines - 1
                 end
             end
             if self.state.cells[i][j].value == MINE then
