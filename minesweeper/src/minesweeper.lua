@@ -24,8 +24,12 @@ function Minesweeper.new(gridX, gridY, difficulty)
     ---@type Cell[][]
     self.state.cells = {}
     self.state.has_clicked_mine = false
+    self.state.game_menu_open = false
 
+    local font = love.graphics.getFont()
     local mine_positions = {}
+    local buttonWidth = 200
+    local buttonHeight = 40
 
     local function generateAdjacentCells()
         for i = 1, grid_x do
@@ -94,7 +98,7 @@ function Minesweeper.new(gridX, gridY, difficulty)
         generateAdjacentCells()
     end
 
-    local function generateEmptyCells()
+    local function generateGame()
         for i = 1, grid_x do
             local x = ((i - 1) * size)
             self.state.cells[i] = {}
@@ -112,39 +116,39 @@ function Minesweeper.new(gridX, gridY, difficulty)
     end
 
     local function openCell(x, y)
-        if self.state.has_clicked_mine == false then
-            local i = math.floor(x / size) + 1
-            local j = math.floor(y / size) + 1
-            self.state.cells[i][j].flagged = false
-            if self.state.cells[i][j].hidden == true then
-                if CASCADE_EFFECT == true then
-                    revealCell(i, j)
-                else
-                    self.state.cells[i][j].hidden = false
-                    self.state.non_mines = self.state.non_mines - 1
+        if self.state.game_menu_open == false then
+            if self.state.has_clicked_mine == false then
+                local i = math.floor(x / size) + 1
+                local j = math.floor(y / size) + 1
+                self.state.cells[i][j].flagged = false
+                if self.state.cells[i][j].hidden == true then
+                    if CASCADE_EFFECT == true then
+                        revealCell(i, j)
+                    else
+                        self.state.cells[i][j].hidden = false
+                        self.state.non_mines = self.state.non_mines - 1
+                    end
                 end
-            end
-            if self.state.cells[i][j].value == MINE then
-                self.state.has_clicked_mine = true;
-                for c, v in ipairs(mine_positions) do
-                    self.state.cells[v[1]][v[2]].hidden = false
+                if self.state.cells[i][j].value == MINE then
+                    self.state.has_clicked_mine = true
+                    for c, v in ipairs(mine_positions) do
+                        self.state.cells[v[1]][v[2]].hidden = false
+                    end
+                    self.state.game_menu_open = true
                 end
-            end
-            if self.state.non_mines == 0 then
-                print("Level Complete")
-                for c, v in ipairs(mine_positions) do
-                    self.state.cells[v[1]][v[2]].hidden = false
-                    self.state.cells[v[1]][v[2]].complete = true
+                if self.state.has_clicked_mine == false and self.state.non_mines == 0 then
+                    for c, v in ipairs(mine_positions) do
+                        self.state.cells[v[1]][v[2]].hidden = false
+                        self.state.cells[v[1]][v[2]].complete = true
+                    end
+                    self.state.game_menu_open = true
                 end
-                -- self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
-                -- self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
-                -- generateEmptyCells()
             end
         end
     end
 
     local function flagCell(x, y)
-        if self.state.has_clicked_mine == false then
+        if self.state.has_clicked_mine == false and self.state.game_menu_open == false then
             local i = math.floor(x / size) + 1
             local j = math.floor(y / size) + 1
             if self.state.cells[i][j].hidden == true then
@@ -164,23 +168,55 @@ function Minesweeper.new(gridX, gridY, difficulty)
                 cell:draw()
             end
         end
+        if self.state.game_menu_open == true then
+            love.graphics.setColor(100, 100, 100, 0.6);
+            local width, height = love.window.getMode()
+            local modalWidth = math.min(400, width)
+            local modalHeight = math.min(200, height)
+            local x = (width / 2) - (modalWidth / 2)
+            local y = (height / 2) - (modalHeight / 2)
+            love.graphics.rectangle("fill", x, y, modalWidth, modalHeight)
+
+            love.graphics.setColor(0, 0, 0)
+            local text = "Click the Button to restart the game";
+            local textWidth = font:getWidth(text)
+            local textX = (width / 2) - (textWidth / 2)
+            local textY = (height / 2) - (modalHeight / 4)
+            love.graphics.print(text, textX, textY)
+
+            love.graphics.setColor(255, 255, 255)
+            local buttonX = (width / 2) - (buttonWidth / 2)
+            local buttonY = (height / 2) - (buttonHeight / 2)
+            love.graphics.rectangle("fill", buttonX, buttonY, buttonWidth, buttonHeight)
+            love.graphics.setColor(0, 0, 0)
+        end
     end
 
     function love.mousepressed(x, y, button)
-        if button == 1 then
-            openCell(x, y)
-        elseif button == 2 then
-            flagCell(x, y)
+        if self.state.game_menu_open == true then
+            -- button logic here
+            local width, height = love.window.getMode()
+            local buttonX = (width / 2) - (buttonWidth / 2)
+            local buttonY = (height / 2) - (buttonHeight / 2)
+            if x > buttonX and x < buttonX + buttonWidth and y > buttonY and y < buttonY + buttonWidth then
+                self.state.cells = {};
+                self.state.has_clicked_mine = false
+                self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
+                self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
+                generateGame()
+                self.state.game_menu_open = false
+            end
+        else
+            if button == 1 then
+                openCell(x, y)
+            elseif button == 2 then
+                flagCell(x, y)
+            end
         end
 
-        -- if x > 10 and x < 30 and y > (grid_y * size) + 20 and y < (grid_y * size) + 40 then
-        --     self.state.cells = {}
-        --     self.state.has_clicked_mine = false
-        --     generateEmptyCells()
-        -- end
     end
 
-    generateEmptyCells()
+    generateGame()
 
     return self
 end

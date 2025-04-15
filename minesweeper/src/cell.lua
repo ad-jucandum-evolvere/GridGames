@@ -26,6 +26,7 @@ function Cell.new(x, y, size, value, debug_mode)
 
     local function setDefaultBorder()
         resetColor()
+        love.graphics.setLineWidth(3)
         love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
     end
 
@@ -66,7 +67,11 @@ function Cell.new(x, y, size, value, debug_mode)
 
     local function setDarkerFill()
         setDefaultBorder()
-        love.graphics.setColor(0.25, 0.25, 0.25, 1)
+        if self.value == 0 then
+            love.graphics.setColor(0.3, 0.3, 0.3, 1)
+        else
+            love.graphics.setColor(0.25, 0.25, 0.25, 1)
+        end
         love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
     end
 
@@ -80,7 +85,13 @@ function Cell.new(x, y, size, value, debug_mode)
         love.graphics.push()
         local vertical_offset = love.graphics.getFont():getHeight() / 2
         local offset = -(self.size / 2) + vertical_offset
-        love.graphics.printf((self.value == 10000) and "M" or self.value, self.x, self.y, self.size, "center", 0, 1, 1, 0, offset)
+        local text = ""
+        if self.value == 10000 then
+            text = "M"
+        elseif self.value > 0 and self.value < 10000 then
+            text = self.value
+        end
+        love.graphics.printf(text, self.x, self.y, self.size, "center", 0, 1, 1, 0, offset)
         love.graphics.pop()
     end
 
