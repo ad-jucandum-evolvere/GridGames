@@ -1,4 +1,3 @@
-local readonly = require("lib.readonly")
 local grid = {}
 
 ---@param horizontal_cells number

@@ -1,6 +1,5 @@
 local constants = require("lib.constants")
 local grid = require("lib.grid")
-local game_state = require("lib.game_state")
 local Cell = require("components.cell")
 
 local Minesweeper = {}
@@ -18,9 +17,15 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
 
     love.window.setMode(grid_x * size, grid_y * size)
 
-    -- initialize the game state before using state
-    game_state.initState(grid_x, grid_y, difficulty)
-
+    -- initialize the game states
+    local grid_size = horizontal_cells * vertical_cells
+    ---@type Cell[][]
+    local cells = {}
+    local is_game_menu_open = false
+    local has_clicked_mine = false
+    local mine_positions = {}
+    local mines = math.max(1, math.floor(grid_size * difficulty))
+    local non_mines = grid_size - mines
     local buttonWidth = 200
     local buttonHeight = 40
 
@@ -29,9 +34,8 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     local function generateAdjacentCells()
         for i = 1, grid_x do
             for j = 1, grid_y do
-                if self.state.cells[i][j].value ~= constants.MINE then
+                if cells[i][j].value ~= constants.MINE then
                     local adjacent_mines = 0
-                    local cells = self.state.cells
                     -- top left
                     if i > 1 and j > 1 and cells[i - 1][j - 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
@@ -74,14 +78,14 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     end
 
     local function generateRandomMine(count)
-        if (count > self.state.mines_count) then
+        if (count > mines) then
             return
         end
         local i = math.random(1, grid_x)
         local j = math.random(1, grid_y)
-        if self.state.cells[i][j].value ~= constants.MINE then
+        if cells[i][j].value ~= constants.MINE then
             mine_positions[count] = { i, j }
-            self.state.cells[i][j].value = constants.MINE
+            cells[i][j].value = constants.MINE
             generateRandomMine(count + 1)
         else
             generateRandomMine(count)
@@ -94,9 +98,6 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     end
 
     local function generateGame()
-        local state = game_state.getState()
-        local cells = state.cells
-
         for i = 1, grid_x do
             local x = ((i - 1) * size)
             cells[i] = {}
@@ -106,19 +107,17 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
             end
         end
 
-        state.setCells(cells)
-
         generateMines()
     end
 
     -- using flood fill algorithm to open blank cells
     local function revealCell(i, j)
-        if i >= 1 and i <= grid_x and j >= 1 and j <= grid_y and self.state.cells[i][j].hidden == true then
-            self.state.cells[i][j].hidden = false
-            self.state.cells[i][j].flagged = false
-            self.state.non_mines = self.state.non_mines - 1
+        if i >= 1 and i <= grid_x and j >= 1 and j <= grid_y and cells[i][j].hidden == true then
+            cells[i][j].hidden = false
+            cells[i][j].flagged = false
+            non_mines = non_mines - 1
 
-            if self.state.cells[i][j].value == constants.EMPTY then
+            if cells[i][j].value == constants.EMPTY then
                 revealCell(i - 1, j - 1) -- top left
                 revealCell(i, j - 1) -- top
                 revealCell(i + 1, j - 1) -- top right
@@ -134,39 +133,40 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     end
 
     local function openCell(x, y)
-        if self.state.game_menu_open == false then
-            if self.state.has_clicked_mine == false then
+        if is_game_menu_open == false then
+            if has_clicked_mine == false then
                 local i = math.floor(x / size) + 1
                 local j = math.floor(y / size) + 1
-                self.state.cells[i][j].flagged = false
+                cells[i][j].flagged = false
+
                 revealCell(i, j)
-                if self.state.cells[i][j].value == constants.MINE then
-                    self.state.has_clicked_mine = true
+                if cells[i][j].value == constants.MINE then
+                    has_clicked_mine = true
                     for c, v in ipairs(mine_positions) do
-                        self.state.cells[v[1]][v[2]].hidden = false
+                        cells[v[1]][v[2]].hidden = false
                     end
-                    self.state.game_menu_open = true
+                    is_game_menu_open = true
                 end
-                if self.state.has_clicked_mine == false and self.state.non_mines == 0 then
+                if has_clicked_mine == false and non_mines == 0 then
                     for c, v in ipairs(mine_positions) do
-                        self.state.cells[v[1]][v[2]].hidden = false
-                        self.state.cells[v[1]][v[2]].complete = true
+                        cells[v[1]][v[2]].hidden = false
+                        cells[v[1]][v[2]].complete = true
                     end
-                    self.state.game_menu_open = true
+                    is_game_menu_open = true
                 end
             end
         end
     end
 
     local function flagCell(x, y)
-        if self.state.has_clicked_mine == false and self.state.game_menu_open == false then
+        if has_clicked_mine == false and is_game_menu_open == false then
             local i = math.floor(x / size) + 1
             local j = math.floor(y / size) + 1
-            if self.state.cells[i][j].hidden == true then
-                if self.state.cells[i][j].flagged == false then
-                    self.state.cells[i][j].flagged = true
+            if cells[i][j].hidden == true then
+                if cells[i][j].flagged == false then
+                    cells[i][j].flagged = true
                 else
-                    self.state.cells[i][j].flagged = false
+                    cells[i][j].flagged = false
                 end
             end
         end
@@ -175,11 +175,11 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     function self:draw()
         for i = 1, grid_x do
             for j = 1, grid_y do
-                local cell = self.state.cells[i][j]
+                local cell = cells[i][j]
                 cell:draw()
             end
         end
-        if self.state.game_menu_open == true then
+        if is_game_menu_open == true then
             love.graphics.setColor(100, 100, 100, 0.6);
             local width, height = love.window.getMode()
             local modalWidth = math.min(400, width)
@@ -204,18 +204,20 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     end
 
     function love.mousepressed(x, y, button)
-        if self.state.game_menu_open == true then
+        if is_game_menu_open == true then
             -- button logic here
             local width, height = love.window.getMode()
             local buttonX = (width / 2) - (buttonWidth / 2)
             local buttonY = (height / 2) - (buttonHeight / 2)
             if x > buttonX and x < buttonX + buttonWidth and y > buttonY and y < buttonY + buttonWidth then
-                self.state.cells = {};
-                self.state.has_clicked_mine = false
-                self.state.mines_count = math.floor((grid_x * grid_y) * difficulty)
-                self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
+                cells = {}
+                is_game_menu_open = false
+                has_clicked_mine = false
+                mine_positions = {}
+                mines = math.min(1, math.floor(grid_size * difficulty))
+                non_mines = grid_size - mines
+                is_game_menu_open = false
                 generateGame()
-                self.state.game_menu_open = false
             end
         else
             if button == 1 then
