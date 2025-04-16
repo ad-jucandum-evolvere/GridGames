@@ -8,7 +8,7 @@ function love.load()
     local Minesweeper = require("src.minesweeper")
 
     love.window.setTitle("Minesweeper")
-    game = Minesweeper.new(10, 10, "easy")
+    game = Minesweeper.new(12, 12, "hard")
 end
 
 function love.draw()

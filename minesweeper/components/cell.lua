@@ -20,19 +20,8 @@ function Cell.new(x, y, size, value, debug_mode)
         end
     end
 
-    local function resetColor()
-        love.graphics.setColor(1, 1, 1, 1)
-    end
-
-    local function setDefaultBorder()
-        resetColor()
-        love.graphics.setLineWidth(3)
-        love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
-    end
-
-    local function showCellFlag()
-        resetColor()
-        image = loadImage("assets/flag.png")
+    local function drawImage(path)
+        image = loadImage(path)
         factor = self.size * 0.6
         scale = factor / image:getWidth()
         offsetX = (self.size - (image:getWidth() * scale)) / 2
@@ -40,6 +29,21 @@ function Cell.new(x, y, size, value, debug_mode)
         love.graphics.push()
         love.graphics.draw(image, self.x + offsetX, self.y + offsetY, 0, scale, scale)
         love.graphics.pop()
+    end
+
+    local function resetColor()
+        love.graphics.setColor(1, 1, 1, 1)
+    end
+
+    local function setDefaultBorder()
+        resetColor()
+        love.graphics.setColor(0.7, 0.7, 0.7, 1)
+        love.graphics.rectangle("line", self.x, self.y, self.size, self.size)
+    end
+
+    local function showCellFlag()
+        resetColor()
+        drawImage("assets/flag.png")
     end
 
     local function setDefaultFill()
@@ -62,11 +66,13 @@ function Cell.new(x, y, size, value, debug_mode)
             love.graphics.setColor(0.5, 0, 0, 1)
             love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
         end
-
+        if self.flagged == false then
+            resetColor()
+            drawImage("assets/mine.png")
+        end
     end
 
     local function setDarkerFill()
-        setDefaultBorder()
         if self.value == 0 then
             love.graphics.setColor(0.3, 0.3, 0.3, 1)
         else
@@ -87,7 +93,7 @@ function Cell.new(x, y, size, value, debug_mode)
         local offset = -(self.size / 2) + vertical_offset
         local text = ""
         if self.value == 10000 then
-            text = "M"
+            text = ""
         elseif self.value > 0 and self.value < 10000 then
             text = self.value
         end

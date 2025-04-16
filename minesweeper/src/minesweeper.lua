@@ -1,75 +1,70 @@
+local constants = require("lib.constants")
+local grid = require("lib.grid")
+local game_state = require("lib.game_state")
+local Cell = require("components.cell")
+
 local Minesweeper = {}
 Minesweeper.__index = Minesweeper
 
-local MINE = 10000
-local EMPTY = 0
-local CASCADE_EFFECT = false
-local DEBUG_MODE = false
-
-function Minesweeper.new(gridX, gridY, difficulty)
-    local Cell = require("src.cell")
-
-    local self = setmetatable({}, Minesweeper)
-    local grid_x = math.max(3, math.min(gridX, 25))
-    local grid_y = math.max(3, math.min(gridY, 15))
-    local percentage = (difficulty == "medium" and 0.15) or (difficulty == "easy" and 0.1) or 0.2
-    local size = 50
-
+function Minesweeper.new(horizontal_cells, vertical_cells, diff)
     love.graphics.setNewFont(20)
-    love.window.setMode(grid_x * size, grid_y * size)
-    self.state = {}
-    self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
-    self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
-
-    ---@type Cell[][]
-    self.state.cells = {}
-    self.state.has_clicked_mine = false
-    self.state.game_menu_open = false
-
     local font = love.graphics.getFont()
-    local mine_positions = {}
+
+    -- Minesweeper Board options
+    local grid_x = grid.getHorizontalSize(horizontal_cells)
+    local grid_y = grid.getVerticalSize(vertical_cells)
+    local difficulty = grid.calculateGridDifficulty(diff)
+    local size = constants.CELL_SIZE
+
+    love.window.setMode(grid_x * size, grid_y * size)
+
+    -- initialize the game state before using state
+    game_state.initState(grid_x, grid_y, difficulty)
+
     local buttonWidth = 200
     local buttonHeight = 40
+
+    local self = setmetatable({}, Minesweeper)
 
     local function generateAdjacentCells()
         for i = 1, grid_x do
             for j = 1, grid_y do
-                if self.state.cells[i][j].value ~= MINE then
+                if self.state.cells[i][j].value ~= constants.MINE then
                     local adjacent_mines = 0
                     local cells = self.state.cells
                     -- top left
-                    if i > 1 and j > 1 and cells[i - 1][j - 1].value == MINE then
+                    if i > 1 and j > 1 and cells[i - 1][j - 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- top
-                    if j > 1 and cells[i][j - 1].value == MINE then
+                    if j > 1 and cells[i][j - 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- top right
-                    if i < grid_x and j > 1 and cells[i + 1][j - 1].value == MINE then
+                    if i < grid_x and j > 1 and cells[i + 1][j - 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
 
                     -- left
-                    if i > 1 and cells[i - 1][j].value == MINE then
+                    if i > 1 and cells[i - 1][j].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
 
                     -- right
-                    if i < grid_x and cells[i + 1][j].value == MINE then
+                    if i < grid_x and cells[i + 1][j].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
 
                     -- bottom left
-                    if i > 1 and j < grid_y and cells[i - 1][j + 1].value == MINE then
+                    if i > 1 and j < grid_y and cells[i - 1][j + 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- bottom
-                    if j < grid_y and cells[i][j + 1].value == MINE then
+                    if j < grid_y and cells[i][j + 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     -- bottom right
-                    if i < grid_x and j < grid_y and cells[i + 1][j + 1].value == MINE then
+                    if i < grid_x and j < grid_y and cells[i + 1][j + 1].value == constants.MINE then
                         adjacent_mines = adjacent_mines + 1
                     end
                     cells[i][j].value = adjacent_mines
@@ -84,9 +79,9 @@ function Minesweeper.new(gridX, gridY, difficulty)
         end
         local i = math.random(1, grid_x)
         local j = math.random(1, grid_y)
-        if self.state.cells[i][j].value ~= MINE then
+        if self.state.cells[i][j].value ~= constants.MINE then
             mine_positions[count] = { i, j }
-            self.state.cells[i][j].value = MINE
+            self.state.cells[i][j].value = constants.MINE
             generateRandomMine(count + 1)
         else
             generateRandomMine(count)
@@ -99,20 +94,43 @@ function Minesweeper.new(gridX, gridY, difficulty)
     end
 
     local function generateGame()
+        local state = game_state.getState()
+        local cells = state.cells
+
         for i = 1, grid_x do
             local x = ((i - 1) * size)
-            self.state.cells[i] = {}
+            cells[i] = {}
             for j = 1, grid_y do
                 local y = ((j - 1) * size)
-                self.state.cells[i][j] = Cell.new(x, y, size, EMPTY, DEBUG_MODE);
+                cells[i][j] = Cell.new(x, y, size, constants.EMPTY, false);
             end
         end
+
+        state.setCells(cells)
+
         generateMines()
     end
 
+    -- using flood fill algorithm to open blank cells
     local function revealCell(i, j)
-        self.state.cells[i][j].hidden = false
-        self.state.non_mines = self.state.non_mines - 1
+        if i >= 1 and i <= grid_x and j >= 1 and j <= grid_y and self.state.cells[i][j].hidden == true then
+            self.state.cells[i][j].hidden = false
+            self.state.cells[i][j].flagged = false
+            self.state.non_mines = self.state.non_mines - 1
+
+            if self.state.cells[i][j].value == constants.EMPTY then
+                revealCell(i - 1, j - 1) -- top left
+                revealCell(i, j - 1) -- top
+                revealCell(i + 1, j - 1) -- top right
+
+                revealCell(i - 1, j) -- left
+                revealCell(i + 1, j) -- right
+
+                revealCell(i - 1, j + 1) -- bottom left
+                revealCell(i, j + 1) -- bottom
+                revealCell(i + 1, j + 1) -- bottom right
+            end
+        end
     end
 
     local function openCell(x, y)
@@ -121,15 +139,8 @@ function Minesweeper.new(gridX, gridY, difficulty)
                 local i = math.floor(x / size) + 1
                 local j = math.floor(y / size) + 1
                 self.state.cells[i][j].flagged = false
-                if self.state.cells[i][j].hidden == true then
-                    if CASCADE_EFFECT == true then
-                        revealCell(i, j)
-                    else
-                        self.state.cells[i][j].hidden = false
-                        self.state.non_mines = self.state.non_mines - 1
-                    end
-                end
-                if self.state.cells[i][j].value == MINE then
+                revealCell(i, j)
+                if self.state.cells[i][j].value == constants.MINE then
                     self.state.has_clicked_mine = true
                     for c, v in ipairs(mine_positions) do
                         self.state.cells[v[1]][v[2]].hidden = false
@@ -201,7 +212,7 @@ function Minesweeper.new(gridX, gridY, difficulty)
             if x > buttonX and x < buttonX + buttonWidth and y > buttonY and y < buttonY + buttonWidth then
                 self.state.cells = {};
                 self.state.has_clicked_mine = false
-                self.state.mines_count = math.floor((grid_x * grid_y) * percentage)
+                self.state.mines_count = math.floor((grid_x * grid_y) * difficulty)
                 self.state.non_mines = (grid_x * grid_y) - self.state.mines_count
                 generateGame()
                 self.state.game_menu_open = false
