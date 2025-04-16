@@ -6,15 +6,17 @@ local Minesweeper = {}
 Minesweeper.__index = Minesweeper
 
 function Minesweeper.new(horizontal_cells, vertical_cells, diff)
+    -- set font to bigger size and get font for alignments
     love.graphics.setNewFont(20)
     local font = love.graphics.getFont()
 
-    -- Minesweeper Board options
+    -- minesweeper Board options
     local grid_x = grid.getHorizontalSize(horizontal_cells)
     local grid_y = grid.getVerticalSize(vertical_cells)
     local difficulty = grid.calculateGridDifficulty(diff)
     local size = constants.CELL_SIZE
 
+    -- set the window to always adjust to the grid size
     love.window.setMode(grid_x * size, grid_y * size)
 
     -- initialize the game states
@@ -31,6 +33,7 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
 
     local self = setmetatable({}, Minesweeper)
 
+    -- private methods
     local function generateAdjacentCells()
         for i = 1, grid_x do
             for j = 1, grid_y do
@@ -172,6 +175,9 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
         end
     end
 
+    generateGame()
+
+    -- public methods
     function self:draw()
         for i = 1, grid_x do
             for j = 1, grid_y do
@@ -203,7 +209,7 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
         end
     end
 
-    function love.mousepressed(x, y, button)
+    function self:mousepressed(x, y, button)
         if is_game_menu_open == true then
             -- button logic here
             local width, height = love.window.getMode()
@@ -228,8 +234,6 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
         end
 
     end
-
-    generateGame()
 
     return self
 end

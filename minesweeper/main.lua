@@ -15,5 +15,9 @@ function love.draw()
     game:draw()
 end
 
+function love.mousepressed(x, y, button)
+    game:mousepressed(x, y, button)
+end
+
 
 
