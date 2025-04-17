@@ -217,10 +217,9 @@ function Minesweeper.new(horizontal_cells, vertical_cells, diff)
             local buttonY = (height / 2) - (buttonHeight / 2)
             if x > buttonX and x < buttonX + buttonWidth and y > buttonY and y < buttonY + buttonWidth then
                 cells = {}
-                is_game_menu_open = false
                 has_clicked_mine = false
                 mine_positions = {}
-                mines = math.min(1, math.floor(grid_size * difficulty))
+                mines = math.max(1, math.floor(grid_size * difficulty))
                 non_mines = grid_size - mines
                 is_game_menu_open = false
                 generateGame()
