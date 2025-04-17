@@ -3,8 +3,8 @@ if arg[#arg] == "debug" then
 end
 
 function love.load()
+    -- make sure that the random number generation is randomized
     math.randomseed(os.time())
-    -- for i = 1, 3 do math.random() end
     local Minesweeper = require("src.minesweeper")
 
     love.window.setTitle("Minesweeper")
