@@ -30,15 +30,15 @@ The list of completed and planned games
 ### Completed
 
 - Game of Life (Cellular Automata)
+- Minesweeper
 
 ### Planned
 
-- [x] Minesweeper (Sooraj)
 - [ ] Tic-tac-toe + variants
 - [x] Nonograms (Srihari)
 - [ ] Voltorb Flip (HG/SS)
 - [ ] Sudoku
-- [ ] Crossword
+- [x] Crossword (Sooraj)
 - [x] Wordle (Vignesh)
 
 ## Contributing
