@@ -1,0 +1,19 @@
+{
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.diagnostics.globals": [
+        "love",
+    ],
+    "Lua.workspace.library": [
+        "${3rd}/love2d/library"
+    ],
+    "Lua.workspace.checkThirdParty": false,
+    "Lua.diagnostics.neededFileStatus": {
+        "codestyle-check": "Any"
+    },
+    "Lua.diagnostics.disable": [
+        "lowercase-global"
+    ],
+    "gitlens.codeLens.scopes": [
+        "document"
+    ]
+}
