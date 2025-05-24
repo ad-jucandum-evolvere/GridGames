@@ -11,5 +11,5 @@ love_files = ["+*", "-*/.*", "-*/bin/*"]
 "../LICENSE" = "license"
 
 [hooks]
-prebuild = ["python3 ../hooks/prebuild.py"]
-postbuild = ["python3 ../hooks/cleanup.py"]
+prebuild = []
+postbuild = []
