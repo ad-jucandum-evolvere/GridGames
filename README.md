@@ -41,6 +41,7 @@ The list of completed and planned games
 - [x] Crossword (Sooraj)
 - [x] Wordle (Vignesh)
 
+
 ## Contributing
 
 > **Important**: Please follow the git config autocrlf setting mentioned for your operating system from [here](https://docs.github.com/en/get-started/getting-started-with-git/configuring-git-to-handle-line-endings?platform=windows#global-settings-for-line-endings) to enforce the same line ending for all commits
